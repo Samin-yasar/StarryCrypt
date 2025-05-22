@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptiText</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title" aria-label="Application title">CryptiText</h1>
+        <div class="language-selector">
+            <label for="language">Select Language:</label>
+            <select id="language" aria-label="Select interface language">
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+                <option value="bn">Bengali</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="iterations">PBKDF2 Iterations:</label>
+            <select id="iterations" aria-label="Select encryption strength">
+                <option value="100000">100,000 (Fast)</option>
+                <option value="500000">500,000 (Balanced)</option>
+                <option value="1000000">1,000,000 (Secure)</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="text-input">Text to Encrypt/Decrypt:</label>
+            <textarea id="text-input" rows="5" placeholder="Enter text here" aria-label="Text to encrypt or decrypt"></textarea>
+            <span id="char-count" aria-live="polite">0 Characters, 0 Words</span>
+        </div>
+        <div class="input-group password-group">
+            <label for="password">Password:</label>
+            <div class="password-wrapper">
+                <input type="password" id="password" placeholder="Enter password" aria-label="Encryption password">
+                <button id="toggle-password" type="button" aria-label="Show or hide password">
+                    <span class="eye-icon">👁️</span>
+                </button>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="auto-clear">Auto-Clear Output After 5 Minutes:</label>
+            <input type="checkbox" id="auto-clear" checked aria-label="Enable auto-clear output">
+        </div>
+        <div class="button-group">
+            <button id="encrypt-btn" aria-label="Encrypt the input text">Encrypt</button>
+            <button id="decrypt-btn" aria-label="Decrypt the input text">Decrypt</button>
+        </div>
+        <div id="spinner" class="spinner" style="display: none;" aria-live="polite">Processing...</div>
+        <div class="output-group">
+            <label for="output">Result:</label>
+            <textarea id="output" rows="5" readonly aria-label="Encryption or decryption result"></textarea>
+            <button id="copy-btn" aria-label="Copy result to clipboard">Copy</button>
+            <button id="share-btn" aria-label="Copy shareable link for encrypted text">Copy Link</button>
+            <button id="media-share-btn" aria-label="Share to social media or apps">Share to Media</button>
+            <button id="qr-btn" aria-label="Show QR code for shareable link">Show QR Code</button>
+        </div>
+        <div class="output-group">
+            <label for="share-message">Share Message:</label>
+            <textarea id="share-message" rows="2" placeholder="Add a note for sharing" aria-label="Custom share message"></textarea>
+            <label for="include-password">Include Password in Share Link:</label>
+            <input type="checkbox" id="include-password" aria-label="Include password in share link">
+        </div>
+        <div id="qr-code" style="display: none; text-align: center;"></div>
+        <p id="error" class="error" aria-live="polite"></p>
+        <div class="theme-toggle-group">
+            <button id="theme-toggle" aria-label="Toggle dark mode">Toggle Dark Mode</button>
+        </div>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
