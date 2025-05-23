@@ -18,18 +18,20 @@ const translations = {
         resultLabel: "Result:",
         shareMessageLabel: "Share Message:",
         shareMessagePlaceholder: "Add a note for sharing",
+        defaultShareMessage: "Encrypted message from CryptiText",
         includePasswordLabel: "Include Password in Share Link:",
         charCount: "Characters",
         wordCount: "Words",
         errorDecrypt: "Decryption failed: Invalid data or password",
         errorEmpty: "Please enter both text and password",
+        errorQrTooLong: "QR code generation failed: Text or password too long. Try shorter input or uncheck 'Include Password'.",
         copySuccess: "Copied to clipboard!",
         shareSuccess: "Shareable link copied to clipboard!",
         mediaShareSuccess: "Opened sharing options!",
         mediaShareFallback: "Web Share API not supported. Copy the link to share.",
         autoClearMessage: "Output cleared for security",
         qrGenerated: "QR code generated!",
-        shortcutHelp: "Shortcuts: Ctrl+Enter (Encrypt), Shift+Enter (Decrypt)"
+        shortcutHelp: "Shortcuts: Ctrl+Enter (Encrypt), Ctrl+Shift+Enter (Decrypt), Ctrl+S (Share), Ctrl+Q (QR Code)"
     },
     fr: {
         title: "CryptiText",
@@ -48,18 +50,20 @@ const translations = {
         resultLabel: "Résultat :",
         shareMessageLabel: "Message de partage :",
         shareMessagePlaceholder: "Ajouter une note pour le partage",
+        defaultShareMessage: "Message chiffré de CryptiText",
         includePasswordLabel: "Inclure le mot de passe dans le lien de partage :",
         charCount: "Caractères",
         wordCount: "Mots",
         errorDecrypt: "Échec du déchiffrement : Données ou mot de passe invalides",
         errorEmpty: "Veuillez entrer le texte et le mot de passe",
+        errorQrTooLong: "Échec de la génération du code QR : Texte ou mot de passe trop long. Essayez un texte plus court ou décochez 'Inclure le mot de passe'.",
         copySuccess: "Copié dans le presse-papiers !",
         shareSuccess: "Lien partageable copié dans le presse-papiers !",
         mediaShareSuccess: "Options de partage ouvertes !",
         mediaShareFallback: "L'API de partage Web n'est pas prise en charge. Copiez le lien pour partager.",
         autoClearMessage: "Sortie effacée pour des raisons de sécurité",
         qrGenerated: "Code QR généré !",
-        shortcutHelp: "Raccourcis : Ctrl+Entrée (Chiffrer), Shift+Entrée (Déchiffrer)"
+        shortcutHelp: "Raccourcis : Ctrl+Entrée (Chiffrer), Ctrl+Shift+Entrée (Déchiffrer), Ctrl+S (Partager), Ctrl+Q (Code QR)"
     },
     es: {
         title: "CryptiText",
@@ -78,18 +82,20 @@ const translations = {
         resultLabel: "Resultado:",
         shareMessageLabel: "Mensaje para compartir:",
         shareMessagePlaceholder: "Añade una nota para compartir",
+        defaultShareMessage: "Mensaje encriptado de CryptiText",
         includePasswordLabel: "Incluir contraseña en el enlace compartido:",
         charCount: "Caracteres",
         wordCount: "Palabras",
         errorDecrypt: "Fallo en la desencriptación: Datos o contraseña inválidos",
         errorEmpty: "Por favor, ingrese tanto el texto como la contraseña",
+        errorQrTooLong: "Fallo en la generación del código QR: Texto o contraseña demasiado largos. Prueba con un texto más corto o desmarca 'Incluir contraseña'.",
         copySuccess: "¡Copiado al portapapeles!",
         shareSuccess: "¡Enlace compartible copiado al portapapeles!",
         mediaShareSuccess: "¡Opciones de compartir abiertas!",
         mediaShareFallback: "La API de compartir web no es compatible. Copia el enlace para compartir.",
         autoClearMessage: "Salida borrada por seguridad",
         qrGenerated: "¡Código QR generado!",
-        shortcutHelp: "Atajos: Ctrl+Enter (Encriptar), Shift+Enter (Desencriptar)"
+        shortcutHelp: "Atajos: Ctrl+Enter (Encriptar), Ctrl+Shift+Enter (Desencriptar), Ctrl+S (Compartir), Ctrl+Q (Código QR)"
     },
     bn: {
         title: "ক্রিপ্টিটেক্সট",
@@ -108,20 +114,30 @@ const translations = {
         resultLabel: "ফলাফল:",
         shareMessageLabel: "শেয়ার বার্তা:",
         shareMessagePlaceholder: "শেয়ারের জন্য একটি নোট যোগ করুন",
+        defaultShareMessage: "ক্রিপ্টিটেক্সট থেকে এনক্রিপ্টেড বার্তা",
         includePasswordLabel: "শেয়ার লিঙ্কে পাসওয়ার্ড অন্তর্ভুক্ত করুন:",
         charCount: "অক্ষর",
         wordCount: "শব্দ",
         errorDecrypt: "ডিক্রিপশন ব্যর্থ: অবৈধ ডেটা বা পাসওয়ার্ড",
         errorEmpty: "দয়া করে টেক্সট এবং পাসওয়ার্ড উভয়ই লিখুন",
+        errorQrTooLong: "কিউআর কোড তৈরি ব্যর্থ: টেক্সট বা পাসওয়ার্ড খুব দীর্ঘ। ছোট টেক্সট ব্যবহার করুন বা 'পাসওয়ার্ড অন্তর্ভুক্ত করুন' বন্ধ করুন।",
         copySuccess: "ক্লিপবোর্ডে কপি করা হয়েছে!",
         shareSuccess: "শেয়ারযোগ্য লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে!",
         mediaShareSuccess: "শেয়ারিং বিকল্প খোলা হয়েছে!",
         mediaShareFallback: "ওয়েব শেয়ার এপিআই সমর্থিত নয়। শেয়ার করতে লিঙ্ক কপি করুন।",
         autoClearMessage: "নিরাপত্তার জন্য আউটপুট মুছে ফেলা হয়েছে",
         qrGenerated: "কিউআর কোড তৈরি করা হয়েছে!",
-        shortcutHelp: "শর্টকাট: Ctrl+Enter (এনক্রিপ্ট), Shift+Enter (ডিক্রিপ্ট)"
+        shortcutHelp: "শর্টকাট: Ctrl+Enter (এনক্রিপ্ট), Ctrl+Shift+Enter (ডিক্রিপ্ট), Ctrl+S (শেয়ার), Ctrl+Q (কিউআর কোড)"
     }
 };
+
+// Dynamically determine the base URL based on the environment
+function getBaseUrl() {
+    const isGitHubPages = window.location.hostname.includes("github.io");
+    return isGitHubPages 
+        ? `${window.location.origin}/CryptiText`
+        : window.location.origin;
+}
 
 function updateLanguage(lang) {
     const t = translations[lang];
@@ -283,9 +299,10 @@ document.getElementById("share-btn").addEventListener("click", () => {
     const includePassword = document.getElementById("include-password").checked;
     const lang = document.getElementById("language").value;
     if (output) {
+        const baseUrl = getBaseUrl();
         const url = includePassword
-            ? `${window.location.origin}?encrypted=${encodeURIComponent(output)}&password=${encodeURIComponent(password)}`
-            : `${window.location.origin}?encrypted=${encodeURIComponent(output)}`;
+            ? `${baseUrl}?encrypted=${encodeURIComponent(output)}&password=${encodeURIComponent(password)}`
+            : `${baseUrl}?encrypted=${encodeURIComponent(output)}`;
         navigator.clipboard.writeText(url).then(() => {
             document.getElementById("error").textContent = translations[lang].shareSuccess;
         }).catch(() => {
@@ -298,12 +315,13 @@ document.getElementById("media-share-btn").addEventListener("click", () => {
     const output = document.getElementById("output").value;
     const password = document.getElementById("password").value;
     const includePassword = document.getElementById("include-password").checked;
-    const shareMessage = document.getElementById("share-message").value || translations[lang].resultLabel;
+    const shareMessage = document.getElementById("share-message").value || translations[document.getElementById("language").value].defaultShareMessage;
     const lang = document.getElementById("language").value;
     if (output) {
+        const baseUrl = getBaseUrl();
         const url = includePassword
-            ? `${window.location.origin}?encrypted=${encodeURIComponent(output)}&password=${encodeURIComponent(password)}`
-            : `${window.location.origin}?encrypted=${encodeURIComponent(output)}`;
+            ? `${baseUrl}?encrypted=${encodeURIComponent(output)}&password=${encodeURIComponent(password)}`
+            : `${baseUrl}?encrypted=${encodeURIComponent(output)}`;
         if (navigator.share) {
             navigator.share({
                 title: translations[lang].title,
@@ -327,23 +345,40 @@ document.getElementById("qr-btn").addEventListener("click", () => {
     const password = document.getElementById("password").value;
     const includePassword = document.getElementById("include-password").checked;
     const lang = document.getElementById("language").value;
+    const qrCodeDiv = document.getElementById("qr-code");
     if (output) {
+        const baseUrl = getBaseUrl();
         const url = includePassword
-            ? `${window.location.origin}?encrypted=${encodeURIComponent(output)}&password=${encodeURIComponent(password)}`
-            : `${window.location.origin}?encrypted=${encodeURIComponent(output)}`;
-        const qrCodeDiv = document.getElementById("qr-code");
+            ? `${baseUrl}?encrypted=${encodeURIComponent(output)}&password=${encodeURIComponent(password)}`
+            : `${baseUrl}?encrypted=${encodeURIComponent(output)}`;
         qrCodeDiv.style.display = "block";
         qrCodeDiv.innerHTML = "";
-        new QRCode(qrCodeDiv, { text: url, width: 128, height: 128 });
-        document.getElementById("error").textContent = translations[lang].qrGenerated;
+        try {
+            new QRCode(qrCodeDiv, {
+                text: url,
+                width: 128,
+                height: 128,
+                typeNumber: 10, // Higher type number for longer data
+                correctLevel: QRCode.CorrectLevel.H // High error correction
+            });
+            document.getElementById("error").textContent = translations[lang].qrGenerated;
+        } catch (err) {
+            qrCodeDiv.style.display = "none";
+            document.getElementById("error").textContent = translations[lang].errorQrTooLong;
+        }
     }
 });
 
 document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "Enter") {
         document.getElementById("encrypt-btn").click();
-    } else if (e.shiftKey && e.key === "Enter") {
+    } else if (e.ctrlKey && e.shiftKey && e.key === "Enter") {
         document.getElementById("decrypt-btn").click();
+    } else if (e.ctrlKey && e.key === "s") {
+        e.preventDefault(); // Prevent browser save dialog
+        document.getElementById("media-share-btn").click();
+    } else if (e.ctrlKey && e.key === "q") {
+        document.getElementById("qr-btn").click();
     }
 });
 
