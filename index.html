@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CryptiText</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="src/qrcode.min.js"></script>
+    <script>
+        // Fallback to CDN if local qrcode.min.js fails to load
+        if (typeof QRCode === 'undefined') {
+            var script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            script.async = true;
+            document.head.appendChild(script);
+        }
+    </script>
+</head>
 </head>
 <body>
     <div class="container">
@@ -55,12 +65,12 @@
             <textarea id="output" rows="5" readonly aria-label="Encryption or decryption result"></textarea>
             <button id="copy-btn" aria-label="Copy result to clipboard">Copy</button>
             <button id="share-btn" aria-label="Copy shareable link for encrypted text">Copy Link</button>
-            <button id="media-share-btn" aria-label="Share to social media or apps">Share to Media</button>
-            <button id="qr-btn" aria-label="Show QR code for shareable link">Show QR Code</button>
         </div>
         <div class="output-group">
             <label for="share-message">Share Message:</label>
             <textarea id="share-message" rows="2" placeholder="Add a note for sharing" aria-label="Custom share message"></textarea>
+            <button id="media-share-btn" aria-label="Share to social media or apps">Share to Media</button>
+            <button id="qr-btn" aria-label="Show QR code for shareable link">Show QR Code</button>
             <label for="include-password">Include Password in Share Link:</label>
             <input type="checkbox" id="include-password" aria-label="Include password in share link">
         </div>
