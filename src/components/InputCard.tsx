@@ -5,8 +5,10 @@ import { Translations } from '@/translations';
 interface InputCardProps {
   text: string;
   onTextChange: (text: string) => void;
+  onClearText: () => void;
   password: string;
   onPasswordChange: (pw: string) => void;
+  onClearPassword: () => void;
   iterations: number;
   onIterationsChange: (n: number) => void;
   onEncrypt: () => void;
@@ -16,7 +18,7 @@ interface InputCardProps {
 }
 
 export function InputCard({
-  text, onTextChange, password, onPasswordChange,
+  text, onTextChange, onClearText, password, onPasswordChange, onClearPassword,
   iterations, onIterationsChange, onEncrypt, onDecrypt,
   isProcessing, t
 }: InputCardProps) {
@@ -29,9 +31,19 @@ export function InputCard({
         <label className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
           {t.sourceText}
         </label>
-        <span className="text-xs sm:text-sm font-medium text-brand-badge-text bg-brand-badge-bg px-2.5 py-1 rounded-lg">
-          {charCount.toLocaleString()} {t.characters}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onClearText}
+            disabled={!text}
+            className="text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            type="button"
+          >
+            {t.clearText}
+          </button>
+          <span className="text-xs sm:text-sm font-medium text-brand-badge-text bg-brand-badge-bg px-2.5 py-1 rounded-lg">
+            {charCount.toLocaleString()} {t.characters}
+          </span>
+        </div>
       </div>
 
       <textarea
@@ -46,17 +58,25 @@ export function InputCard({
           <label className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
             {t.password}
           </label>
-          <div className="relative">
+          <div className="relative flex items-center gap-2">
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => onPasswordChange(e.target.value)}
-              className="input-field pr-14"
+              className="input-field pr-14 flex-1"
               placeholder={t.encryptionKey}
             />
             <button
+              onClick={onClearPassword}
+              disabled={!password}
+              className="text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              type="button"
+            >
+              {t.clearPassword}
+            </button>
+            <button
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-2 cursor-pointer"
+              className="absolute right-14 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-2 cursor-pointer"
               type="button"
             >
               {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}

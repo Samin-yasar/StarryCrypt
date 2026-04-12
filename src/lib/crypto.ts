@@ -5,6 +5,24 @@ const MAX_ITERATIONS = 10000000;
 const HEADER_SIZE = 1 + 4 + SALT_SIZE; // 37 bytes
 const IV_SIZE = 12;
 const GCM_TAG_SIZE = 16;
+const BYTE_TO_BINARY_CHUNK = 0x8000;
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += BYTE_TO_BINARY_CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + BYTE_TO_BINARY_CHUNK));
+  }
+  return btoa(binary);
+}
+
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
 
 async function deriveKey(password: string, salt: Uint8Array<ArrayBuffer>, iterations: number): Promise<CryptoKey> {
   const keyMaterial = await crypto.subtle.importKey(
@@ -48,17 +66,13 @@ export async function encryptText(text: string, password: string, iterations: nu
   result.set(iv, HEADER_SIZE);
   result.set(new Uint8Array(encrypted), HEADER_SIZE + IV_SIZE);
 
-  let binary = '';
-  for (let i = 0; i < result.length; i++) {
-    binary += String.fromCharCode(result[i]);
-  }
-  return btoa(binary);
+  return bytesToBase64(result);
 }
 
 export async function decryptText(encryptedBase64: string, password: string): Promise<string> {
   let encryptedData: Uint8Array;
   try {
-    encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+    encryptedData = base64ToBytes(encryptedBase64);
   } catch {
     throw new Error("Decryption failed");
   }
@@ -91,7 +105,7 @@ export async function decryptText(encryptedBase64: string, password: string): Pr
       throw new Error("Decryption failed");
     }
 
-    return new TextDecoder().decode(decrypted);
+    return new TextDecoder("utf-8", { fatal: true }).decode(decrypted);
   } catch {
     throw new Error("Decryption failed");
   }

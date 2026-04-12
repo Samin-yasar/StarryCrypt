@@ -36,6 +36,12 @@ const es: Translations = {
   qrTooltip: "Generar código QR de la salida",
   closeQr: "Cerrar",
   qrTooLong: "Salida demasiado larga para código QR (máx. 2.953 car.).",
+  clearText: "Borrar texto",
+  clearPassword: "Borrar contraseña",
+  clearOutput: "Borrar salida",
+  shareEncrypted: "URL cifrada",
+  shareOnlyEncrypted: "Solo la salida cifrada se puede compartir por URL.",
+  importedEncryptedInput: "Entrada cifrada cargada desde la URL.",
 };
 
 export default es;

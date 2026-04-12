@@ -36,6 +36,12 @@ const ko: Translations = {
   qrTooltip: "출력에서 QR 코드 생성",
   closeQr: "닫기",
   qrTooLong: "출력이 QR 코드에 너무 깁니다 (최대 2,953자).",
+  clearText: "텍스트 지우기",
+  clearPassword: "비밀번호 지우기",
+  clearOutput: "출력 지우기",
+  shareEncrypted: "암호화 URL",
+  shareOnlyEncrypted: "암호화된 출력만 URL로 공유할 수 있습니다.",
+  importedEncryptedInput: "URL에서 암호화 입력을 불러왔습니다.",
 };
 
 export default ko;

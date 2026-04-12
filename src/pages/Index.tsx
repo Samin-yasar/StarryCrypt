@@ -20,6 +20,7 @@ export default function Index() {
   const [password, setPassword] = useState('');
   const [iterations, setIterations] = useState(400000);
   const [output, setOutput] = useState('');
+  const [outputKind, setOutputKind] = useState<'encrypted' | 'decrypted' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [starId, setStarId] = useState('');
   const [hmacEnabled, setHmacEnabled] = useState(true);
@@ -28,6 +29,20 @@ export default function Index() {
   useEffect(() => {
     localStorage.setItem('language', language);
   }, [language]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const encryptedInput = params.get('encrypted');
+    if (!encryptedInput) return;
+
+    setText(encryptedInput);
+    toast.success(t.importedEncryptedInput);
+
+    params.delete('encrypted');
+    const nextQuery = params.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`;
+    window.history.replaceState({}, '', nextUrl);
+  }, [t.importedEncryptedInput]);
 
   useEffect(() => {
     if (password) {
@@ -50,6 +65,7 @@ export default function Index() {
         result = `${result}|${hmac}`;
       }
       setOutput(result);
+      setOutputKind('encrypted');
       toast.success(t.successEncrypt);
     } catch {
       toast.error(t.errorGeneric);
@@ -79,6 +95,7 @@ export default function Index() {
       }
       const result = await decryptText(input, password);
       setOutput(result);
+      setOutputKind('decrypted');
       toast.success(t.successDecrypt);
     } catch {
       toast.error(t.errorGeneric);
@@ -116,14 +133,31 @@ export default function Index() {
 
   const handleShare = useCallback(async () => {
     if (!output) return;
-    const url = `${window.location.origin}${window.location.pathname}?text=${encodeURIComponent(output)}`;
+    if (outputKind !== 'encrypted') {
+      toast.error(t.shareOnlyEncrypted);
+      return;
+    }
+    const url = `${window.location.origin}${window.location.pathname}?encrypted=${encodeURIComponent(output)}`;
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t.successCopy);
     } catch {
       toast.error(t.failedCopyLink);
     }
-  }, [output, t]);
+  }, [output, outputKind, t]);
+
+  const handleClearText = useCallback(() => {
+    setText('');
+  }, []);
+
+  const handleClearPassword = useCallback(() => {
+    setPassword('');
+  }, []);
+
+  const handleClearOutput = useCallback(() => {
+    setOutput('');
+    setOutputKind(null);
+  }, []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -159,8 +193,10 @@ export default function Index() {
           <InputCard
             text={text}
             onTextChange={setText}
+            onClearText={handleClearText}
             password={password}
             onPasswordChange={setPassword}
+            onClearPassword={handleClearPassword}
             iterations={iterations}
             onIterationsChange={setIterations}
             onEncrypt={handleEncrypt}
@@ -173,6 +209,7 @@ export default function Index() {
             output={output}
             isProcessing={isProcessing}
             starId={starId}
+            onClearOutput={handleClearOutput}
             onCopy={handleCopy}
             onDownload={handleDownload}
             onShare={handleShare}

@@ -36,6 +36,12 @@ const ja: Translations = {
   qrTooltip: "出力からQRコードを生成",
   closeQr: "閉じる",
   qrTooLong: "出力がQRコードには長すぎます（最大2,953文字）。",
+  clearText: "テキストを消去",
+  clearPassword: "パスワードを消去",
+  clearOutput: "出力を消去",
+  shareEncrypted: "暗号化URL",
+  shareOnlyEncrypted: "URL共有は暗号化出力のみ対応しています。",
+  importedEncryptedInput: "URLから暗号化入力を読み込みました。",
 };
 
 export default ja;

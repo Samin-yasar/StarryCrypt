@@ -36,6 +36,12 @@ const en: Translations = {
   qrTooltip: "Generate QR code from output",
   closeQr: "Close",
   qrTooLong: "Output too long for QR code (max 2,953 chars).",
+  clearText: "Clear Text",
+  clearPassword: "Clear Password",
+  clearOutput: "Clear Output",
+  shareEncrypted: "Encrypted URL",
+  shareOnlyEncrypted: "Only encrypted output can be shared by URL.",
+  importedEncryptedInput: "Encrypted input loaded from URL.",
 };
 
 export default en;
