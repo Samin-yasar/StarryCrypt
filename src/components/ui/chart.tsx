@@ -5,6 +5,20 @@ import { cn } from "@/lib/utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
+const SAFE_CSS_TOKEN = /^[a-zA-Z0-9_-]+$/;
+const SAFE_COLOR_VALUE =
+  /^(#[0-9a-fA-F]{3,8}|rgba?\([0-9.,\s%]+\)|hsla?\([0-9.,\s%]+\)|var\(--[a-zA-Z0-9_-]+\)|[a-zA-Z]+)$/;
+
+function sanitizeCssToken(value: string): string {
+  return SAFE_CSS_TOKEN.test(value) ? value : "";
+}
+
+function sanitizeColorValue(value?: string): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed || /[<>{};]/.test(trimmed)) return null;
+  return SAFE_COLOR_VALUE.test(trimmed) ? trimmed : null;
+}
 
 export type ChartConfig = {
   [k in string]: {
@@ -37,7 +51,8 @@ const ChartContainer = React.forwardRef<
   }
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId();
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const rawId = `${id || uniqueId.replace(/:/g, "")}`;
+  const chartId = `chart-${sanitizeCssToken(rawId) || "default"}`;
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -65,25 +80,35 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
+  const safeId = sanitizeCssToken(id);
+  if (!safeId) {
+    return null;
+  }
+
+  const cssText = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const rules = colorConfig
+        .map(([key, itemConfig]) => {
+          const safeKey = sanitizeCssToken(key);
+          const color = sanitizeColorValue(itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color);
+          return safeKey && color ? `  --color-${safeKey}: ${color};` : null;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+      if (!rules) return "";
+
+      return `${prefix} [data-chart="${safeId}"] {\n${rules}\n}`;
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  if (!cssText) {
+    return null;
+  }
+
   return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
-}
-`,
-          )
-          .join("\n"),
-      }}
-    />
+    <style>{cssText}</style>
   );
 };
 

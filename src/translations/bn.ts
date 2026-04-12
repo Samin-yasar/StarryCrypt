@@ -36,6 +36,12 @@ const bn: Translations = {
   qrTooltip: "আউটপুট থেকে QR কোড তৈরি করুন",
   closeQr: "বন্ধ",
   qrTooLong: "আউটপুট QR কোডের জন্য অনেক বড় (সর্বোচ্চ ২,৯৫৩ অক্ষর)।",
+  clearText: "টেক্সট মুছুন",
+  clearPassword: "পাসওয়ার্ড মুছুন",
+  clearOutput: "আউটপুট মুছুন",
+  shareEncrypted: "এনক্রিপ্টেড URL",
+  shareOnlyEncrypted: "শুধু এনক্রিপ্টেড আউটপুটই URL দিয়ে শেয়ার করা যাবে।",
+  importedEncryptedInput: "URL থেকে এনক্রিপ্টেড ইনপুট লোড হয়েছে।",
 };
 
 export default bn;

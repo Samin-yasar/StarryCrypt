@@ -34,6 +34,12 @@ export interface Translations {
   qrTooltip: string;
   closeQr: string;
   qrTooLong: string;
+  clearText: string;
+  clearPassword: string;
+  clearOutput: string;
+  shareEncrypted: string;
+  shareOnlyEncrypted: string;
+  importedEncryptedInput: string;
 }
 
 export type Lang = 'en' | 'fr' | 'es' | 'ja' | 'ko' | 'bn';
