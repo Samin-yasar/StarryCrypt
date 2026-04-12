@@ -58,14 +58,23 @@ export function InputCard({
           <label className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
             {t.password}
           </label>
-          <div className="relative flex items-center gap-2">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => onPasswordChange(e.target.value)}
-              className="input-field pr-14 flex-1"
-              placeholder={t.encryptionKey}
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => onPasswordChange(e.target.value)}
+                className="input-field pr-14"
+                placeholder={t.encryptionKey}
+              />
+              <button
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-2 cursor-pointer"
+                type="button"
+              >
+                {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+              </button>
+            </div>
             <button
               onClick={onClearPassword}
               disabled={!password}
@@ -73,13 +82,6 @@ export function InputCard({
               type="button"
             >
               {t.clearPassword}
-            </button>
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-14 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-2 cursor-pointer"
-              type="button"
-            >
-              {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
             </button>
           </div>
         </div>
