@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Shield, ChevronDown } from 'lucide-react';
+import { Translations } from '@/translations';
 
 interface SecurityPanelProps {
   hmacEnabled: boolean;
   onHmacChange: (v: boolean) => void;
   autoClearEnabled: boolean;
   onAutoClearChange: (v: boolean) => void;
+  t: Translations;
 }
 
-export function SecurityPanel({ hmacEnabled, onHmacChange, autoClearEnabled, onAutoClearChange }: SecurityPanelProps) {
+export function SecurityPanel({ hmacEnabled, onHmacChange, autoClearEnabled, onAutoClearChange, t }: SecurityPanelProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,7 +22,7 @@ export function SecurityPanel({ hmacEnabled, onHmacChange, autoClearEnabled, onA
       >
         <span className="text-sm sm:text-base font-bold text-primary uppercase tracking-widest flex items-center gap-2.5">
           <Shield className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
-          Security Sentinel
+          {t.securitySentinel}
         </span>
         <ChevronDown
           className={`w-5 h-5 sm:w-6 sm:h-6 text-primary transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
@@ -32,7 +34,7 @@ export function SecurityPanel({ hmacEnabled, onHmacChange, autoClearEnabled, onA
           <div className="space-y-4 sm:space-y-6">
             <label className="flex items-center justify-between cursor-pointer group">
               <span className="text-sm sm:text-base font-medium text-foreground/80 group-hover:text-foreground transition-colors">
-                HMAC Integrity
+                {t.hmacIntegrity}
               </span>
               <input
                 type="checkbox"
@@ -43,7 +45,7 @@ export function SecurityPanel({ hmacEnabled, onHmacChange, autoClearEnabled, onA
             </label>
             <label className="flex items-center justify-between cursor-pointer group">
               <span className="text-sm sm:text-base font-medium text-foreground/80 group-hover:text-foreground transition-colors">
-                Memory Wipe (30s)
+                {t.memoryWipe}
               </span>
               <input
                 type="checkbox"
@@ -55,7 +57,7 @@ export function SecurityPanel({ hmacEnabled, onHmacChange, autoClearEnabled, onA
           </div>
           <div className="flex items-center bg-brand-badge-bg p-4 sm:p-5 rounded-2xl border border-primary/10">
             <p className="text-xs sm:text-sm text-brand-badge-text leading-relaxed font-medium">
-              StarryCrypt uses 256-bit AES-GCM with PBKDF2 key derivation. All operations run directly in your local browser engine.
+              {t.securityDescription}
             </p>
           </div>
         </div>

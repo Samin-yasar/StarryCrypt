@@ -5,7 +5,7 @@ import { InputCard } from '@/components/InputCard';
 import { OutputCard } from '@/components/OutputCard';
 import { SecurityPanel } from '@/components/SecurityPanel';
 import { useTheme } from '@/hooks/useTheme';
-import { Lang, getTranslations } from '@/lib/i18n';
+import { Lang, getTranslations } from '@/translations';
 import { encryptText, decryptText, computeHmacSha512, computeSha256Fingerprint } from '@/lib/crypto';
 
 export default function Index() {
@@ -99,7 +99,7 @@ export default function Index() {
         }, 30000);
       }
     } catch {
-      toast.error('Clipboard blocked.');
+      toast.error(t.clipboardBlocked);
     }
   }, [output, autoClearEnabled, t]);
 
@@ -121,11 +121,10 @@ export default function Index() {
       await navigator.clipboard.writeText(url);
       toast.success(t.successCopy);
     } catch {
-      toast.error('Failed to copy link.');
+      toast.error(t.failedCopyLink);
     }
   }, [output, t]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'Enter') {
@@ -149,10 +148,10 @@ export default function Index() {
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <header className="text-center mb-10 sm:mb-14">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 tracking-tight text-foreground">
-            StarryCrypt
+            {t.heroTitle}
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto font-light">
-            Enterprise-grade text encryption for the modern web.
+            {t.heroSubtitle}
           </p>
         </header>
 
@@ -185,6 +184,7 @@ export default function Index() {
             onHmacChange={setHmacEnabled}
             autoClearEnabled={autoClearEnabled}
             onAutoClearChange={setAutoClearEnabled}
+            t={t}
           />
         </div>
       </main>

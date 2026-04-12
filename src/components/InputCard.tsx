@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Lock, Unlock, Eye, EyeOff } from 'lucide-react';
-import { Translations } from '@/lib/i18n';
+import { Translations } from '@/translations';
 
 interface InputCardProps {
   text: string;
@@ -30,7 +30,7 @@ export function InputCard({
           {t.sourceText}
         </label>
         <span className="text-xs sm:text-sm font-medium text-brand-badge-text bg-brand-badge-bg px-2.5 py-1 rounded-lg">
-          {charCount.toLocaleString()} Characters
+          {charCount.toLocaleString()} {t.characters}
         </span>
       </div>
 
@@ -38,7 +38,7 @@ export function InputCard({
         value={text}
         onChange={(e) => onTextChange(e.target.value)}
         className="input-field h-48 sm:h-64 md:h-72 resize-none font-medium leading-relaxed"
-        placeholder="Enter text to encrypt or decrypt..."
+        placeholder={t.enterTextPlaceholder}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-2">
@@ -52,7 +52,7 @@ export function InputCard({
               value={password}
               onChange={(e) => onPasswordChange(e.target.value)}
               className="input-field pr-14"
-              placeholder="Encryption Key"
+              placeholder={t.encryptionKey}
             />
             <button
               onClick={() => setShowPassword(!showPassword)}
@@ -73,9 +73,9 @@ export function InputCard({
             onChange={(e) => onIterationsChange(Number(e.target.value))}
             className="input-field appearance-none cursor-pointer"
           >
-            <option value={400000}>400,000 Iterations (Recommended)</option>
-            <option value={600000}>600,000 Iterations</option>
-            <option value={1000000}>1,000,000 Iterations (Maximum)</option>
+            <option value={400000}>{t.iterationsRecommended}</option>
+            <option value={600000}>{t.iterations600k}</option>
+            <option value={1000000}>{t.iterationsMax}</option>
           </select>
         </div>
       </div>

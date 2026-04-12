@@ -1,0 +1,39 @@
+export interface Translations {
+  encrypt: string;
+  decrypt: string;
+  copy: string;
+  save: string;
+  password: string;
+  iterations: string;
+  sourceText: string;
+  secureOutput: string;
+  successEncrypt: string;
+  successDecrypt: string;
+  successCopy: string;
+  errorEmpty: string;
+  errorHmac: string;
+  errorGeneric: string;
+  clipboardCleared: string;
+  characters: string;
+  encryptionKey: string;
+  iterationsRecommended: string;
+  iterations600k: string;
+  iterationsMax: string;
+  resultPlaceholder: string;
+  enterTextPlaceholder: string;
+  securitySentinel: string;
+  hmacIntegrity: string;
+  memoryWipe: string;
+  securityDescription: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  url: string;
+  clipboardBlocked: string;
+  failedCopyLink: string;
+  qrCode: string;
+  qrTooltip: string;
+  closeQr: string;
+  qrTooLong: string;
+}
+
+export type Lang = 'en' | 'fr' | 'es' | 'ja' | 'ko' | 'bn';
