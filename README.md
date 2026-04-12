@@ -22,7 +22,7 @@ StarryCrypt is a client-side React application for text encryption and decryptio
 
 Repository path:
 
-`/home/runner/work/fluid-ui-rescue/fluid-ui-rescue`
+`/home/runner/work/starrycrypt/starrycrypt`
 
 Install dependencies:
 
