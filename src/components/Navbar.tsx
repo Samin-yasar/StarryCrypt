@@ -1,4 +1,4 @@
-import { Sun, Moon, Sparkles, Github } from 'lucide-react';
+import { Sun, Moon, Github } from 'lucide-react';
 import { Lang, LANGUAGES } from '@/lib/i18n';
 
 interface NavbarProps {
@@ -12,9 +12,11 @@ export function Navbar({ isDark, onToggleTheme, language, onLanguageChange }: Na
   return (
     <nav className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border backdrop-blur-xl sticky top-0 z-50 bg-background/80">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
-          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" strokeWidth={2.5} />
-        </div>
+        <img
+          src="/starrycrypt_logo_nav.png"
+          alt="StarryCrypt Logo"
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl shadow-lg object-cover"
+        />
         <span className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">StarryCrypt</span>
       </div>
 

@@ -1,4 +1,4 @@
-# 🛡️ Security Policy
+# Security Policy
 
 Security is the highest priority for **StarryCrypt**. Because this project handles encryption and user privacy, we take potential vulnerabilities very seriously.
 
@@ -15,7 +15,7 @@ Currently, only the **latest version** on the default branch receives security u
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report suspected vulnerabilities by opening a private security advisory in **GitHub Security Advisories** for this repository. 
+Instead, please report suspected vulnerabilities by opening a private security advisory in **GitHub Security Advisories** for this repository.
 
 When reporting, please include:
 - **Description**: A clear and detailed explanation of the vulnerability.
