@@ -83,6 +83,12 @@ export async function decryptText(encryptedBase64: string, password: string): Pr
 
   try {
     const view = new DataView(encryptedData.buffer, encryptedData.byteOffset, encryptedData.byteLength);
+
+    // Validate format version cheaply before any expensive operations
+    if (view.getUint8(0) !== FORMAT_VERSION) {
+      throw new Error("Decryption failed");
+    }
+
     const iterations = view.getUint32(1, false);
 
     if (iterations < MIN_ITERATIONS || iterations > MAX_ITERATIONS) {
@@ -100,10 +106,6 @@ export async function decryptText(encryptedBase64: string, password: string): Pr
       key,
       ciphertext
     );
-
-    if (view.getUint8(0) !== FORMAT_VERSION) {
-      throw new Error("Decryption failed");
-    }
 
     return new TextDecoder("utf-8", { fatal: true }).decode(decrypted);
   } catch {
