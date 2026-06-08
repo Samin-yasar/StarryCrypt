@@ -1,18 +1,30 @@
-# Security Policy
+# 🛡️ Security Policy
 
-## Supported versions
+Security is the highest priority for **StarryCrypt**. Because this project handles encryption and user privacy, we take potential vulnerabilities very seriously.
 
-Security updates are provided for the latest version on the default branch.
+## Supported Versions
 
-## Reporting a vulnerability
+Currently, only the **latest version** on the default branch receives security updates. If you are using a fork or local copy, please pull the latest changes to ensure you have the most up-to-date security patches.
 
-Please report suspected vulnerabilities by opening a private security advisory in GitHub Security Advisories for this repository.
+| Version | Supported          |
+| ------- | ------------------ |
+| Latest  | :white_check_mark: |
+| Older   | :x:                |
 
-When reporting, include:
+## Reporting a Vulnerability
 
-- A clear description of the issue
-- Reproduction steps
-- Impact assessment
-- Any suggested remediation
+**Please do not report security vulnerabilities through public GitHub issues.**
 
-Please do not disclose vulnerabilities publicly before maintainers confirm and release a fix.
+Instead, please report suspected vulnerabilities by opening a private security advisory in **GitHub Security Advisories** for this repository. 
+
+When reporting, please include:
+- **Description**: A clear and detailed explanation of the vulnerability.
+- **Reproduction Steps**: Exact steps (including browser and OS versions) required to reproduce the issue.
+- **Impact Assessment**: What the potential impact is (e.g., plaintext leak, cross-site scripting).
+- **Remediation**: Any suggested fixes or remediations, if you have them.
+
+### Response Timeline
+We aim to acknowledge receipt of vulnerability reports within 48 hours. Please do not disclose vulnerabilities publicly before maintainers confirm and release a fix.
+
+## Out of Scope
+Because StarryCrypt relies entirely on the browser's native **Web Crypto API**, vulnerabilities inherent to underlying browser implementations are outside the scope of this repository and should be reported to the respective browser vendors (e.g., Chromium, Mozilla, Apple).
