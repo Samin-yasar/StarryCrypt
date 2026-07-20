@@ -14,7 +14,7 @@
     "typescript"
   ],
   "author": "StarryCrypt Contributors",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "version": "0.1.0",
   "private": false,
   "type": "module",
