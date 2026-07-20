@@ -1,8 +1,22 @@
 {
-  "name": "vite_react_shadcn_ts",
-  "private": true,
-  "version": "0.0.0",
+  "name": "starrycrypt",
+  "description": "A modern, secure cryptography toolkit built with React and TypeScript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Samin-yasar/StarryCrypt"
+  },
+  "keywords": [
+    "cryptography",
+    "encryption",
+    "security",
+    "toolkit",
+    "react",
+    "typescript"
+  ],
+  "author": "StarryCrypt Contributors",
   "license": "MIT",
+  "version": "0.1.0",
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "vite",
