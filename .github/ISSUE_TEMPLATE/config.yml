@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/Samin-yasar/StarryCrypt/discussions
+    about: Ask questions and discuss ideas
+  - name: Security Issues
+    url: https://github.com/Samin-yasar/StarryCrypt/security/advisories
+    about: Report security vulnerabilities (privately)
+  - name: Documentation
+    url: https://github.com/Samin-yasar/StarryCrypt/tree/main/docs
+    about: Read our comprehensive guides

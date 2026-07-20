@@ -1,10 +1,29 @@
 # StarryCrypt
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/Samin-yasar/StarryCrypt?style=social)](https://github.com/Samin-yasar/StarryCrypt)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Samin-yasar/StarryCrypt/ci.yml?branch=main)](https://github.com/Samin-yasar/StarryCrypt/actions)
+
 > **Secure, client-side text encryption and decryption powered by the Web Crypto API.**
 
 StarryCrypt is a modern, zero-knowledge web application that provides robust text encryption and decryption entirely within the browser. Designed with privacy as the highest priority, no plaintext or passwords ever leave your device.
 
 Perfect for securely sharing sensitive messages, storing encrypted notes, or learning about modern web cryptography.
+
+**🔒 Zero-Knowledge · 🚀 Fast · 📱 Responsive · 🌍 i18n Support · 🔐 Industry-Standard Crypto**
+
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Security Model](#security-model)
+- [Getting Started](#getting-started)
+- [Development](#development)
+- [Contributing](#contributing)
+- [Security Policy](#security-policy)
+- [Documentation](#documentation)
+- [License](#license)
 
 ## Features
 
@@ -68,14 +87,47 @@ Maintain code quality and ensure cryptographic functions work as expected:
 - **Watch Mode**: `npm run test:watch`
 - **Lint Code**: `npm run lint`
 
+## Development
+
+For detailed development setup, architecture overview, and contribution guidelines, see our [Development Guide](docs/DEVELOPMENT.md).
+
+### Quick Start
+```bash
+git clone https://github.com/Samin-yasar/StarryCrypt.git
+cd StarryCrypt
+npm install
+npm run dev
+```
+
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting a Pull Request.
+We welcome contributions! Please read our:
+- [Contributing Guide](CONTRIBUTING.md) - Workflow and conventions
+- [Code of Conduct](CODE_OF_CONDUCT.md) - Community standards
+- [Development Guide](docs/DEVELOPMENT.md) - Setup and architecture
+
+For a list of good first issues to tackle, see our [GitHub Issues](https://github.com/Samin-yasar/StarryCrypt/issues).
 
 ## Security Policy
 
 Please refer to [SECURITY.md](SECURITY.md) for detailed information on our security practices and how to report vulnerabilities.
 
+## Documentation
+
+- [Architecture Guide](docs/ARCHITECTURE.md) - System design and crypto flows
+- [API Reference](docs/API.md) - Cryptographic function documentation
+- [Testing Guide](docs/TESTING.md) - Test strategy and coverage
+- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
 ## License
 
-Distributed under the GNU GPL v3 License. See [LICENSE](LICENSE) for more information.
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
+
+## Support
+
+If you find this project useful, please consider:
+- Starring the repository ⭐
+- Reporting bugs or suggesting features
+- Contributing code or documentation
+- Sharing with others who might benefit
