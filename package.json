@@ -1,8 +1,30 @@
 {
-  "name": "vite_react_shadcn_ts",
-  "private": true,
-  "version": "0.0.0",
+  "name": "starrycrypt",
+  "description": "Secure, client-side text encryption and decryption powered by the Web Crypto API. Zero-knowledge architecture ensures all cryptographic operations remain in your browser.",
+  "private": false,
+  "version": "1.0.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Samin-yasar/StarryCrypt.git"
+  },
+  "homepage": "https://github.com/Samin-yasar/StarryCrypt",
+  "bugs": {
+    "url": "https://github.com/Samin-yasar/StarryCrypt/issues"
+  },
+  "author": "Samin Yasar",
+  "keywords": [
+    "encryption",
+    "decryption",
+    "web-crypto",
+    "aes-gcm",
+    "pbkdf2",
+    "client-side",
+    "privacy",
+    "security",
+    "zero-knowledge",
+    "cryptography"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
