@@ -1,6 +1,6 @@
 # StarryCrypt
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-GNU_GPL_v3-blue)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/Samin-yasar/StarryCrypt?style=social)](https://github.com/Samin-yasar/StarryCrypt)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/Samin-yasar/StarryCrypt/ci.yml?branch=main)](https://github.com/Samin-yasar/StarryCrypt/actions)
@@ -122,7 +122,7 @@ Please refer to [SECURITY.md](SECURITY.md) for detailed information on our secur
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
+Distributed under the GNU GPL-3.0 License. See [LICENSE](LICENSE) for more information.
 
 ## Support
 
