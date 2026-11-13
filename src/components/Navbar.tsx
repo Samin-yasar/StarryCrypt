@@ -42,7 +42,7 @@ export function Navbar({ isDark, onToggleTheme, language, onLanguageChange }: Na
         <select
           value={language}
           onChange={(e) => onLanguageChange(e.target.value as Lang)}
-          className="bg-transparent border-none font-medium text-muted-foreground text-sm sm:text-base cursor-pointer hover:text-primary transition-colors outline-none"
+          className="bg-transparent border-none font-medium text-muted-foreground text-sm sm:text-base cursor-pointer hover:text-primary transition-colors outline-hidden"
         >
           {LANGUAGES.map(l => (
             <option key={l.value} value={l.value} className="bg-card text-card-foreground">
