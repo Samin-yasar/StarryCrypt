@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Development setup and troubleshooting guides
 
 ### Changed
+- Passwords are now normalized to Unicode NFKC before key derivation (data encrypted with a raw non-normalized password still decrypts via fallback)
+- StarID is now a 16-bit PBKDF2-derived, domain-separated fingerprint (was 48 bits of unsalted SHA-256) and is computed after a 500 ms pause in typing
+- Crypto test suite replaces the placeholder test; docs corrected (GCM-SIV mention, brute-force estimates, API reference)
 - README updated with badges and better structure
 - CONTRIBUTING.md significantly expanded with workflows
 - .gitignore enhanced for modern development
@@ -27,10 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - (Add deprecations here)
 
 ### Removed
-- (Add removals here)
+- Optional HMAC integrity layer and its UI toggle (AES-GCM already authenticates everything; the HMAC let attackers test password guesses cheaply). Legacy `|hmac` suffixes are still accepted and ignored on decryption
+- `computeHmacSha512()` and `computeSha256Fingerprint()` (replaced by `computePasswordFingerprint()`)
 
 ### Security
-- (Add security fixes here)
+- Removed the HMAC-based password-guess shortcut and the weak 48-bit SHA-256 password fingerprint
+- Fixed cross-platform decryption failures for non-ASCII passwords (NFC/NFD mismatch)
 
 ## [1.0.0] - 2024-01-XX
 

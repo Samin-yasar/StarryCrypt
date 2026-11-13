@@ -18,10 +18,10 @@ Comprehensive guide to testing strategy, running tests, and writing new tests fo
 StarryCrypt uses **Vitest** for unit and integration testing:
 
 - **Framework**: Vitest (Jest-compatible)
-- **Location**: `tests/` directory
+- **Location**: `src/test/` directory (`src/test/crypto.test.ts` for the crypto suite)
 - **Config**: `vitest.config.ts`
 - **Coverage**: Aims for 80%+ on crypto functions
-- **Speed**: Most tests run in < 1 second
+- **Speed**: Crypto tests run real PBKDF2 (400,000+ iterations), so the crypto suite takes roughly 15 seconds
 
 ### Why Vitest?
 
@@ -90,12 +90,9 @@ npm run test -- --reporter=verbose
 ### Directory Organization
 
 ```
-tests/
-├── crypto.test.ts          # Crypto functions tests
-├── components/
-│   └── Button.test.tsx     # Component tests
-└── utils/
-    └── helpers.test.ts     # Utility function tests
+src/test/
+├── setup.ts                # Global test setup (jest-dom, matchMedia stub)
+└── crypto.test.ts          # Crypto suite (runs in the Node environment)
 ```
 
 ### Naming Conventions
@@ -108,9 +105,9 @@ tests/
 ### Basic Structure
 
 ```typescript
-// tests/crypto.test.ts
+// src/test/crypto.test.ts
 import { describe, it, expect } from 'vitest';
-import { encryptText, decryptText } from '../src/lib/crypto';
+import { encryptText, decryptText } from '@/lib/crypto';
 
 describe('Crypto Module', () => {
   describe('encryptText', () => {
@@ -329,6 +326,22 @@ Generates HTML report at `coverage/index.html`
 4. **Error handling** - Ensure generic error messages
 
 ## Crypto Testing
+
+### The Crypto Suite (`src/test/crypto.test.ts`)
+
+The suite declares `// @vitest-environment node` so it uses Node's Web Crypto and `node:crypto` rather than jsdom. It covers:
+
+- **Round trips**: ASCII, empty, Unicode/emoji, multi-line, and a 200 KB payload (exercises chunked Base64)
+- **Randomness**: a fresh salt and IV for every encryption
+- **Format**: version byte, big-endian iteration count, header size, total length
+- **Iteration handling**: low values clamp to the minimum; out-of-range values in a ciphertext are rejected quickly, before any key derivation
+- **Wrong password**: generic `Decryption failed`; case and whitespace sensitivity
+- **Tamper detection**: a flipped byte in each of the version, iteration count, salt, IV, ciphertext and tag; a valid-range iteration change (proves the header is authenticated); truncation and extension
+- **Malformed input**: empty, non-Base64, too short, unknown version
+- **Unicode normalization**: NFC and NFD forms of a password decrypt each other's data; legacy data made with the raw password still decrypts; legacy `|hmac` suffixes are ignored without weakening authentication
+- **Interoperability**: output is decrypted by an independent `node:crypto` PBKDF2-SHA512 + AES-256-GCM implementation, and a blob built by `node:crypto` from the published format is decrypted by the library
+- **StarID**: 4 hex characters, deterministic, normalization-stable, and unrelated to the encryption key derivation
+
 
 ### Security Considerations
 

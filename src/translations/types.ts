@@ -11,7 +11,6 @@ export interface Translations {
   successDecrypt: string;
   successCopy: string;
   errorEmpty: string;
-  errorHmac: string;
   errorGeneric: string;
   clipboardCleared: string;
   characters: string;
@@ -22,7 +21,6 @@ export interface Translations {
   resultPlaceholder: string;
   enterTextPlaceholder: string;
   securitySentinel: string;
-  hmacIntegrity: string;
   memoryWipe: string;
   securityDescription: string;
   heroTitle: string;

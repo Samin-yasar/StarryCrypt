@@ -6,7 +6,7 @@ import { OutputCard } from '@/components/OutputCard';
 import { SecurityPanel } from '@/components/SecurityPanel';
 import { useTheme } from '@/hooks/useTheme';
 import { Lang, getTranslations } from '@/translations';
-import { encryptText, decryptText, computeHmacSha512, computeSha256Fingerprint } from '@/lib/crypto';
+import { encryptText, decryptText, computePasswordFingerprint } from '@/lib/crypto';
 
 export default function Index() {
   const { isDark, toggle: toggleTheme } = useTheme();
@@ -23,7 +23,6 @@ export default function Index() {
   const [outputKind, setOutputKind] = useState<'encrypted' | 'decrypted' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [starId, setStarId] = useState('');
-  const [hmacEnabled, setHmacEnabled] = useState(true);
   const [autoClearEnabled, setAutoClearEnabled] = useState(true);
 
   useEffect(() => {
@@ -45,11 +44,24 @@ export default function Index() {
   }, [t.importedEncryptedInput]);
 
   useEffect(() => {
-    if (password) {
-      computeSha256Fingerprint(password).then(setStarId);
-    } else {
+    if (!password) {
       setStarId('');
+      return;
     }
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      computePasswordFingerprint(password)
+        .then((id) => {
+          if (!cancelled) setStarId(id);
+        })
+        .catch(() => {
+          if (!cancelled) setStarId('');
+        });
+    }, 500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [password]);
 
   const handleEncrypt = useCallback(async () => {
@@ -59,11 +71,7 @@ export default function Index() {
     }
     try {
       setIsProcessing(true);
-      let result = await encryptText(text, password, iterations);
-      if (hmacEnabled) {
-        const hmac = await computeHmacSha512(result, password);
-        result = `${result}|${hmac}`;
-      }
+      const result = await encryptText(text, password, iterations);
       setOutput(result);
       setOutputKind('encrypted');
       toast.success(t.successEncrypt);
@@ -72,27 +80,16 @@ export default function Index() {
     } finally {
       setIsProcessing(false);
     }
-  }, [text, password, iterations, hmacEnabled, t]);
+  }, [text, password, iterations, t]);
 
   const handleDecrypt = useCallback(async () => {
-    let input = text.trim();
+    const input = text.trim();
     if (!input || !password) {
       toast.error(t.errorEmpty);
       return;
     }
     try {
       setIsProcessing(true);
-      if (hmacEnabled || input.includes('|')) {
-        const [data, providedHmac] = input.split('|');
-        if (providedHmac) {
-          const computedHmac = await computeHmacSha512(data, password);
-          if (computedHmac !== providedHmac) {
-            toast.error(t.errorHmac);
-            return;
-          }
-          input = data;
-        }
-      }
       const result = await decryptText(input, password);
       setOutput(result);
       setOutputKind('decrypted');
@@ -102,7 +99,7 @@ export default function Index() {
     } finally {
       setIsProcessing(false);
     }
-  }, [text, password, hmacEnabled, t]);
+  }, [text, password, t]);
 
   const handleCopy = useCallback(async () => {
     if (!output) return;
@@ -217,8 +214,6 @@ export default function Index() {
           />
 
           <SecurityPanel
-            hmacEnabled={hmacEnabled}
-            onHmacChange={setHmacEnabled}
             autoClearEnabled={autoClearEnabled}
             onAutoClearChange={setAutoClearEnabled}
             t={t}

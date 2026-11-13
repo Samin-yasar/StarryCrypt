@@ -151,8 +151,8 @@ StarryCrypt/
 The core cryptography module containing:
 - `encryptText()` - Main encryption function
 - `decryptText()` - Main decryption function
-- `computeHmacSha512()` - HMAC verification
-- `computeSha256Fingerprint()` - Hash generation
+- `normalizePassword()` - NFKC password normalization
+- `computePasswordFingerprint()` - Short StarID for password typo checks
 
 #### `src/components/`
 Reusable React components built with:

@@ -131,8 +131,8 @@ ReactDOM.createRoot(document.getElementById('app')!)
 **Exports**:
 - `encryptText()` - Main encryption function
 - `decryptText()` - Main decryption function
-- `computeHmacSha512()` - HMAC generation
-- `computeSha256Fingerprint()` - Hash fingerprinting
+- `normalizePassword()` - NFKC password normalization
+- `computePasswordFingerprint()` - Short StarID for password typo checks
 
 **Size**: ~130 lines of well-commented code
 **Dependencies**: Web Crypto API only (built-in)

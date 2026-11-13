@@ -51,7 +51,8 @@ StarryCrypt implements a strict security model to ensure your data remains confi
 - **Encryption Algorithm**: AES-GCM-256 (Advanced Encryption Standard in Galois/Counter Mode)
 - **Key Derivation**: PBKDF2 with SHA-512 (Password-Based Key Derivation Function 2)
 - **Salting & IVs**: A cryptographically secure random salt and Initialization Vector (IV) are generated for every single encryption operation.
-- **Integrity Checking**: Optional HMAC tags are used to verify the authenticity and integrity of the ciphertext before decryption.
+- **Integrity Checking**: AES-GCM authenticates the ciphertext and the header (version, iteration count, salt); any modification causes decryption to fail.
+- **Unicode-safe passwords**: Passwords are normalized to NFKC so the same password works across devices and input methods.
 
 ## Getting Started
 
