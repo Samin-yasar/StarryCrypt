@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Development setup and troubleshooting guides
 
 ### Changed
+- Upgraded to the latest majors: React 19, React Router 7, Vite 8, Vitest 5, jsdom 31, ESLint 10 (with typescript-eslint 8 and eslint-plugin-react-hooks 7), Tailwind CSS 4 (CSS-first config; `tailwind.config.ts` removed), Sonner 2, lucide-react 1, tailwind-merge 3, `@vitejs/plugin-react-swc` 4 and vite-plugin-pwa 2. TypeScript is held at 6.0 because typescript-eslint does not yet support 7. Node 22.22+ or 24.15+ is now required.
+- State derived from props now follows the React 19 hook rules: the StarID and the QR panel are tied to the exact password/output they were computed for instead of being reset in effects.
+- Share links pasted into an already-open tab (a fragment-only change) are now imported via a `hashchange` listener.
+- lucide-react 1 removed brand icons, so the GitHub mark is inlined in the navbar.
 - Share links now use the URL fragment (`#encrypted=...`) instead of the query string; old links still work
 - Labels corrected: "Entropy Scale" is now "Key Stretching", the 1,000,000 option is "Strongest" (was "Maximum"), "Memory Wipe" is "Auto-clear clipboard", and the unsupported "Enterprise-grade" claim was removed (all six languages)
 - Passwords are now normalized to Unicode NFKC before key derivation (data encrypted with a raw non-normalized password still decrypts via fallback)

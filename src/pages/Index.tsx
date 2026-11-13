@@ -53,6 +53,20 @@ export default function Index() {
   }, [sharedLink, t.importedEncryptedInput]);
 
   useEffect(() => {
+    // Pasting a share link into the address bar of an already-open tab only changes the fragment,
+    // which does not reload the page.
+    const onHashChange = () => {
+      const { payload, search, hash } = extractSharedPayload(window.location.search, window.location.hash);
+      if (!payload) return;
+      setText(payload);
+      toast.success(t.importedEncryptedInput);
+      window.history.replaceState({}, '', `${window.location.pathname}${search}${hash}`);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [t.importedEncryptedInput]);
+
+  useEffect(() => {
     if (!password) return;
 
     let cancelled = false;

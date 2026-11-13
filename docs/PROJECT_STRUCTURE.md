@@ -75,7 +75,7 @@ StarryCrypt/
 ├── vite.config.ts                # Vite build configuration
 ├── vitest.config.ts              # Vitest test configuration
 ├── tsconfig.json                 # TypeScript configuration
-├── tailwind.config.ts            # Tailwind CSS configuration
+├── postcss.config.js             # PostCSS config (@tailwindcss/postcss)
 │
 └── dist/                         # 📦 Build output (generated)
     ├── index.html               # Compiled HTML
@@ -152,16 +152,15 @@ ReactDOM.createRoot(document.getElementById('app')!)
 - Target ES2020+ for modern JS
 - React JSX support
 
-#### `tailwind.config.ts`
-**Purpose**: Tailwind CSS customization
+#### `src/index.css` (Tailwind 4)
+**Purpose**: Tailwind CSS 4 uses CSS-first configuration, so there is no `tailwind.config.ts`. Theme tokens live in an `@theme` block, the `dark` variant is declared with `@custom-variant`, and `tailwindcss-animate` is loaded with `@plugin`.
 
 **Customizations**:
-- Color palette
-- Typography scales
-- Spacing values
-- Custom components
+- Color tokens (HSL variables)
+- Radius and font tokens
+- Animations
 
-#### `.eslintrc.json`
+#### `eslint.config.js`
 **Purpose**: Code quality rules
 
 **Coverage**:
@@ -480,7 +479,7 @@ index.html
           └─ pages/NotFound.tsx
 
 External Libraries:
-├─ React 18
+├─ React 19
 ├─ React Router
 ├─ Tailwind CSS
 ├─ Sonner (toasts)

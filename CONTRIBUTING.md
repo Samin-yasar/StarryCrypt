@@ -43,7 +43,7 @@ There are many ways to contribute to StarryCrypt:
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ and npm
+- Node.js 22.22+ or 24.15+ and npm
 - Git
 - Basic familiarity with React and TypeScript
 

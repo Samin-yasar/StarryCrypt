@@ -37,11 +37,11 @@ Perfect for securely sharing sensitive messages, storing encrypted notes, or lea
 
 ## Tech Stack
 
-- **Frontend Framework**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
+- **Frontend Framework**: React 19 with TypeScript
+- **Build Tool**: Vite 8
+- **Styling**: Tailwind CSS 4
 - **Cryptography**: Native Web Crypto API
-- **Routing**: React Router DOM
+- **Routing**: React Router 7
 - **Icons & Toasts**: Lucide React, Sonner
 
 ## Security Model
@@ -58,7 +58,7 @@ StarryCrypt implements a strict security model to ensure your data remains confi
 
 ### Prerequisites
 
-Ensure you have Node.js (v18+) and npm installed on your local machine.
+Ensure you have Node.js (v22.22+ or v24.15+) and npm installed on your local machine.
 
 ### Installation
 
