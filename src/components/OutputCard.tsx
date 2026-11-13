@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Copy, Download, Link, Loader2, QrCode, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Translations } from '@/translations';
@@ -18,11 +18,9 @@ interface OutputCardProps {
 }
 
 export function OutputCard({ output, outputKind, isProcessing, onClearOutput, onCopy, onDownload, onShare, t }: OutputCardProps) {
-  const [showQr, setShowQr] = useState(false);
-
-  useEffect(() => {
-    setShowQr(false);
-  }, [output]);
+  // The QR is tied to the exact output it was opened for, so it closes itself when the output changes.
+  const [qrOutput, setQrOutput] = useState<string | null>(null);
+  const showQr = output !== '' && qrOutput === output;
 
   const handleQr = () => {
     if (!output) return;
@@ -34,7 +32,7 @@ export function OutputCard({ output, outputKind, isProcessing, onClearOutput, on
       toast.warning(t.qrTooLong);
       return;
     }
-    setShowQr(true);
+    setQrOutput(output);
   };
 
   return (
@@ -76,7 +74,7 @@ export function OutputCard({ output, outputKind, isProcessing, onClearOutput, on
             <QRCodeSVG value={output} size={220} level={QR_ERROR_LEVEL} />
           </ErrorBoundary>
           <button
-            onClick={() => setShowQr(false)}
+            onClick={() => setQrOutput(null)}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 cursor-pointer"
             type="button"
           >

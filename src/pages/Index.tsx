@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { Navbar } from '@/components/Navbar';
 import { InputCard } from '@/components/InputCard';
@@ -27,13 +27,17 @@ export default function Index() {
   });
   const t = getTranslations(language);
 
-  const [text, setText] = useState('');
+  const [sharedLink] = useState(() => extractSharedPayload(window.location.search, window.location.hash));
+  const [text, setText] = useState(sharedLink.payload ?? '');
   const [password, setPassword] = useState('');
   const [iterations, setIterations] = useState(400000);
   const [output, setOutput] = useState('');
   const [outputKind, setOutputKind] = useState<'encrypted' | 'decrypted' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [starId, setStarId] = useState('');
+  const [fingerprint, setFingerprint] = useState<{ password: string; id: string } | null>(null);
+  // A StarID only counts for the exact password it was computed from, so a stale ID is never shown while typing.
+  const starId = fingerprint && fingerprint.password === password ? fingerprint.id : '';
+  const importedShare = useRef(false);
   const [autoClearEnabled, setAutoClearEnabled] = useState(true);
 
   useEffect(() => {
@@ -42,27 +46,23 @@ export default function Index() {
   }, [language]);
 
   useEffect(() => {
-    const { payload, search, hash } = extractSharedPayload(window.location.search, window.location.hash);
-    if (!payload) return;
-
-    setText(payload);
+    if (!sharedLink.payload || importedShare.current) return;
+    importedShare.current = true;
     toast.success(t.importedEncryptedInput);
-    window.history.replaceState({}, '', `${window.location.pathname}${search}${hash}`);
-  }, [t.importedEncryptedInput]);
+    window.history.replaceState({}, '', `${window.location.pathname}${sharedLink.search}${sharedLink.hash}`);
+  }, [sharedLink, t.importedEncryptedInput]);
 
   useEffect(() => {
-    // Clear immediately so a stale ID never looks like a match while the user is typing.
-    setStarId('');
     if (!password) return;
 
     let cancelled = false;
     const timer = setTimeout(() => {
       computePasswordFingerprint(password)
         .then((id) => {
-          if (!cancelled) setStarId(id);
+          if (!cancelled) setFingerprint({ password, id });
         })
         .catch(() => {
-          if (!cancelled) setStarId('');
+          if (!cancelled) setFingerprint(null);
         });
     }, 500);
     return () => {
