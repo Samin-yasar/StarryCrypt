@@ -18,7 +18,7 @@ Comprehensive guide to testing strategy, running tests, and writing new tests fo
 StarryCrypt uses **Vitest** for unit and integration testing:
 
 - **Framework**: Vitest (Jest-compatible)
-- **Location**: `src/test/` directory (`src/test/crypto.test.ts` for the crypto suite)
+- **Location**: `src/test/` directory (`src/test/crypto.test.ts` for the crypto suite, `lib.test.ts` for helpers, `output-card.test.tsx` for UI)
 - **Config**: `vitest.config.ts`
 - **Coverage**: Aims for 80%+ on crypto functions
 - **Speed**: Crypto tests run real PBKDF2 (400,000+ iterations), so the crypto suite takes roughly 15 seconds
@@ -92,7 +92,9 @@ npm run test -- --reporter=verbose
 ```
 src/test/
 ├── setup.ts                # Global test setup (jest-dom, matchMedia stub)
-└── crypto.test.ts          # Crypto suite (runs in the Node environment)
+├── crypto.test.ts          # Crypto suite (Node environment)
+├── lib.test.ts             # QR limits, share links, password rules, clipboard clearing (Node)
+└── output-card.test.tsx    # OutputCard QR behavior and ErrorBoundary (jsdom)
 ```
 
 ### Naming Conventions
@@ -341,6 +343,12 @@ The suite declares `// @vitest-environment node` so it uses Node's Web Crypto an
 - **Unicode normalization**: NFC and NFD forms of a password decrypt each other's data; legacy data made with the raw password still decrypts; legacy `|hmac` suffixes are ignored without weakening authentication
 - **Interoperability**: output is decrypted by an independent `node:crypto` PBKDF2-SHA512 + AES-256-GCM implementation, and a blob built by `node:crypto` from the published format is decrypted by the library
 - **StarID**: 4 hex characters, deterministic, normalization-stable, and unrelated to the encryption key derivation
+- **Iteration peek**: `getIterationCount()` reads the header without key derivation and returns `null` for invalid input
+
+### Other Suites
+
+- `lib.test.ts`: QR capacity counted in bytes (ASCII and Bengali boundaries), share links in the URL fragment (Base64 round trip, legacy `?encrypted=`, preserved extra parameters), blank/short password rules, and clipboard clearing (delay, one timer at a time, no wipe of newer clipboard contents, reported failure)
+- `output-card.test.tsx`: output between the old (2,953) and real (2,331) QR limits no longer crashes, QR is refused for decrypted plaintext, the QR closes when the output changes, buttons have accessible names, and `ErrorBoundary` shows its fallback and recovers when `resetKey` changes
 
 
 ### Security Considerations

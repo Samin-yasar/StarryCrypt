@@ -5,14 +5,25 @@ import { InputCard } from '@/components/InputCard';
 import { OutputCard } from '@/components/OutputCard';
 import { SecurityPanel } from '@/components/SecurityPanel';
 import { useTheme } from '@/hooks/useTheme';
-import { Lang, getTranslations } from '@/translations';
-import { encryptText, decryptText, computePasswordFingerprint } from '@/lib/crypto';
+import { LANGUAGES, Lang, getTranslations } from '@/translations';
+import {
+  encryptText,
+  decryptText,
+  computePasswordFingerprint,
+  getIterationCount,
+  SLOW_DECRYPT_THRESHOLD,
+} from '@/lib/crypto';
+import { buildShareUrl, extractSharedPayload } from '@/lib/share';
+import { scheduleClipboardClear, cancelClipboardClear } from '@/lib/clipboard';
+import { isBlankPassword } from '@/lib/password';
+
+const CLIPBOARD_CLEAR_DELAY_MS = 30000;
 
 export default function Index() {
   const { isDark, toggle: toggleTheme } = useTheme();
   const [language, setLanguage] = useState<Lang>(() => {
-    const stored = localStorage.getItem('language') as Lang;
-    return stored || 'en';
+    const stored = localStorage.getItem('language');
+    return LANGUAGES.some((l) => l.value === stored) ? (stored as Lang) : 'en';
   });
   const t = getTranslations(language);
 
@@ -27,27 +38,23 @@ export default function Index() {
 
   useEffect(() => {
     localStorage.setItem('language', language);
+    document.documentElement.lang = language;
   }, [language]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const encryptedInput = params.get('encrypted');
-    if (!encryptedInput) return;
+    const { payload, search, hash } = extractSharedPayload(window.location.search, window.location.hash);
+    if (!payload) return;
 
-    setText(encryptedInput);
+    setText(payload);
     toast.success(t.importedEncryptedInput);
-
-    params.delete('encrypted');
-    const nextQuery = params.toString();
-    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`;
-    window.history.replaceState({}, '', nextUrl);
+    window.history.replaceState({}, '', `${window.location.pathname}${search}${hash}`);
   }, [t.importedEncryptedInput]);
 
   useEffect(() => {
-    if (!password) {
-      setStarId('');
-      return;
-    }
+    // Clear immediately so a stale ID never looks like a match while the user is typing.
+    setStarId('');
+    if (!password) return;
+
     let cancelled = false;
     const timer = setTimeout(() => {
       computePasswordFingerprint(password)
@@ -65,7 +72,8 @@ export default function Index() {
   }, [password]);
 
   const handleEncrypt = useCallback(async () => {
-    if (!text.trim() || !password) {
+    if (isProcessing) return;
+    if (!text.trim() || isBlankPassword(password)) {
       toast.error(t.errorEmpty);
       return;
     }
@@ -80,14 +88,25 @@ export default function Index() {
     } finally {
       setIsProcessing(false);
     }
-  }, [text, password, iterations, t]);
+  }, [text, password, iterations, isProcessing, t]);
 
   const handleDecrypt = useCallback(async () => {
+    if (isProcessing) return;
     const input = text.trim();
     if (!input || !password) {
       toast.error(t.errorEmpty);
       return;
     }
+
+    const requiredIterations = getIterationCount(input);
+    if (
+      requiredIterations !== null &&
+      requiredIterations > SLOW_DECRYPT_THRESHOLD &&
+      !window.confirm(t.slowDecryptConfirm.replace('{count}', requiredIterations.toLocaleString()))
+    ) {
+      return;
+    }
+
     try {
       setIsProcessing(true);
       const result = await decryptText(input, password);
@@ -99,7 +118,7 @@ export default function Index() {
     } finally {
       setIsProcessing(false);
     }
-  }, [text, password, t]);
+  }, [text, password, isProcessing, t]);
 
   const handleCopy = useCallback(async () => {
     if (!output) return;
@@ -107,10 +126,12 @@ export default function Index() {
       await navigator.clipboard.writeText(output);
       toast.success(t.successCopy);
       if (autoClearEnabled) {
-        setTimeout(async () => {
-          await navigator.clipboard.writeText('');
-          toast.info(t.clipboardCleared);
-        }, 30000);
+        scheduleClipboardClear(output, CLIPBOARD_CLEAR_DELAY_MS, (result) => {
+          if (result === 'cleared') toast.info(t.clipboardCleared);
+          if (result === 'failed') toast.warning(t.clipboardClearFailed);
+        });
+      } else {
+        cancelClipboardClear();
       }
     } catch {
       toast.error(t.clipboardBlocked);
@@ -119,14 +140,14 @@ export default function Index() {
 
   const handleDownload = useCallback(() => {
     if (!output) return;
-    const blob = new Blob([output], { type: 'text/plain' });
+    const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'encrypt.enc.txt';
+    a.download = outputKind === 'decrypted' ? 'decrypted.txt' : 'encrypted.enc.txt';
     a.click();
     URL.revokeObjectURL(url);
-  }, [output]);
+  }, [output, outputKind]);
 
   const handleShare = useCallback(async () => {
     if (!output) return;
@@ -134,7 +155,7 @@ export default function Index() {
       toast.error(t.shareOnlyEncrypted);
       return;
     }
-    const url = `${window.location.origin}${window.location.pathname}?encrypted=${encodeURIComponent(output)}`;
+    const url = buildShareUrl(window.location.origin, window.location.pathname, output);
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t.successCopy);
@@ -158,7 +179,7 @@ export default function Index() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'Enter') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         handleEncrypt();
       }
@@ -196,6 +217,7 @@ export default function Index() {
             onClearPassword={handleClearPassword}
             iterations={iterations}
             onIterationsChange={setIterations}
+            starId={starId}
             onEncrypt={handleEncrypt}
             onDecrypt={handleDecrypt}
             isProcessing={isProcessing}
@@ -204,8 +226,8 @@ export default function Index() {
 
           <OutputCard
             output={output}
+            outputKind={outputKind}
             isProcessing={isProcessing}
-            starId={starId}
             onClearOutput={handleClearOutput}
             onCopy={handleCopy}
             onDownload={handleDownload}

@@ -6,6 +6,8 @@ import {
   decryptText,
   computePasswordFingerprint,
   normalizePassword,
+  getIterationCount,
+  SLOW_DECRYPT_THRESHOLD,
   FORMAT_VERSION,
   SALT_SIZE,
   IV_SIZE,
@@ -138,6 +140,30 @@ describe("malformed input", () => {
       await expect(decryptText(toB64(bytes), PASSWORD)).rejects.toThrow(FAILURE);
       expect(performance.now() - start).toBeLessThan(250);
     }
+  });
+});
+
+describe("getIterationCount", () => {
+  it("reads the iteration count from a valid payload without key derivation", async () => {
+    const ct = await encryptText("x", PASSWORD, 500000);
+    const start = performance.now();
+    expect(getIterationCount(ct)).toBe(500000);
+    expect(getIterationCount(`${ct}|legacyhmac`)).toBe(500000);
+    expect(performance.now() - start).toBeLessThan(50);
+  });
+
+  it("returns null for anything that is not a valid payload", () => {
+    const bytes = new Uint8Array(HEADER_SIZE + IV_SIZE + GCM_TAG_SIZE + 4);
+    bytes[0] = FORMAT_VERSION;
+    new DataView(bytes.buffer).setUint32(1, MAX_ITERATIONS + 1, false);
+    for (const input of ["", "garbage!!", "AAAA", toB64(bytes)]) {
+      expect(getIterationCount(input)).toBeNull();
+    }
+  });
+
+  it("exposes a slow-decrypt threshold above the largest UI option", () => {
+    expect(SLOW_DECRYPT_THRESHOLD).toBeGreaterThan(1000000);
+    expect(SLOW_DECRYPT_THRESHOLD).toBeLessThan(MAX_ITERATIONS);
   });
 });
 

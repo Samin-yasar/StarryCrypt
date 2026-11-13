@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock, Unlock, Eye, EyeOff } from 'lucide-react';
 import { Translations } from '@/translations';
+import { isShortPassword } from '@/lib/password';
 
 interface InputCardProps {
   text: string;
@@ -11,6 +12,7 @@ interface InputCardProps {
   onClearPassword: () => void;
   iterations: number;
   onIterationsChange: (n: number) => void;
+  starId: string;
   onEncrypt: () => void;
   onDecrypt: () => void;
   isProcessing: boolean;
@@ -19,7 +21,7 @@ interface InputCardProps {
 
 export function InputCard({
   text, onTextChange, onClearText, password, onPasswordChange, onClearPassword,
-  iterations, onIterationsChange, onEncrypt, onDecrypt,
+  iterations, onIterationsChange, starId, onEncrypt, onDecrypt,
   isProcessing, t
 }: InputCardProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +30,7 @@ export function InputCard({
   return (
     <section className="glass-card p-5 sm:p-8 md:p-10 space-y-5 sm:space-y-6">
       <div className="flex items-center justify-between">
-        <label className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
+        <label htmlFor="source-text" className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
           {t.sourceText}
         </label>
         <div className="flex items-center gap-2">
@@ -47,6 +49,7 @@ export function InputCard({
       </div>
 
       <textarea
+        id="source-text"
         value={text}
         onChange={(e) => onTextChange(e.target.value)}
         className="input-field h-48 sm:h-64 md:h-72 resize-none font-medium leading-relaxed"
@@ -55,22 +58,39 @@ export function InputCard({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-2">
         <div className="space-y-2.5">
-          <label className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
-            {t.password}
-          </label>
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor="password" className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
+              {t.password}
+            </label>
+            {starId && (
+              <span
+                className="text-xs font-mono font-bold text-brand-badge-text bg-brand-badge-bg px-2 py-0.5 rounded-lg cursor-help"
+                title={t.starIdTooltip}
+              >
+                StarID: {starId}
+                <span className="sr-only"> ({t.starIdTooltip})</span>
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <input
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => onPasswordChange(e.target.value)}
                 className="input-field pr-14"
                 placeholder={t.encryptionKey}
+                autoComplete="new-password"
+                spellCheck={false}
+                aria-describedby={isShortPassword(password) ? 'password-hint' : undefined}
               />
               <button
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors p-2 cursor-pointer"
                 type="button"
+                aria-label={showPassword ? t.hidePassword : t.showPassword}
+                aria-pressed={showPassword}
               >
                 {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
               </button>
@@ -84,13 +104,19 @@ export function InputCard({
               {t.clearPassword}
             </button>
           </div>
+          {isShortPassword(password) && (
+            <p id="password-hint" className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              {t.weakPasswordHint}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2.5">
-          <label className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
+          <label htmlFor="iterations" className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
             {t.iterations}
           </label>
           <select
+            id="iterations"
             value={iterations}
             onChange={(e) => onIterationsChange(Number(e.target.value))}
             className="input-field appearance-none cursor-pointer"

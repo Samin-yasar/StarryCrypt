@@ -22,7 +22,7 @@ StarryCrypt is a zero-knowledge web application that performs all encryption and
 │  └──────────────────────────────────────────────┘   │
 │                         │                            │
 │  ┌──────────────────────────────────────────────┐   │
-│  │  State Management (React Query)              │   │
+│  │  State Management (React hooks)              │   │
 │  │  └─ Manage ciphertext, decrypted text        │   │
 │  └──────────────────────────────────────────────┘   │
 │                         │                            │
@@ -165,7 +165,7 @@ There is no separate integrity layer: AES-GCM authenticates both the ciphertext 
 #### Index Page (`src/pages/Index.tsx`)
 - Main application interface
 - Form handling for encryption/decryption
-- URL parameter parsing for shared encrypted data
+- Share-link import from the URL fragment (legacy `?encrypted=` supported) and cleanup
 - Display of results and sharing options
 
 #### Support Components (`src/components/`)
@@ -176,10 +176,7 @@ There is no separate integrity layer: AES-GCM authenticates both the ciphertext 
 
 ### State Management
 
-Uses **React Query** for:
-- Caching decrypted text during session
-- Managing form state across navigation
-- Handling async crypto operations
+Uses plain React state (`useState` / `useCallback`) in `Index.tsx`. Plaintext, passwords and output live only in memory; the only values written to `localStorage` are the theme and the language.
 
 ## Security Considerations
 

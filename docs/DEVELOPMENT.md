@@ -105,7 +105,7 @@ StarryCrypt/
 │
 ├── src/                          # Source code
 │   ├── components/              # React components
-│   │   ├── ui/                 # Shadcn UI components
+│   │   ├── ui/                 # sonner.tsx (toast wrapper)
 │   │   └── *.tsx               # Custom components
 │   │
 │   ├── pages/                   # Page components
@@ -156,7 +156,6 @@ The core cryptography module containing:
 
 #### `src/components/`
 Reusable React components built with:
-- Radix UI primitives
 - Tailwind CSS styling
 - TypeScript for type safety
 
@@ -412,7 +411,7 @@ export function Page() {
 }
 ```
 
-### Adding Shadcn UI Component
+### Adding a shadcn/ui Component (optional)
 
 ```bash
 # Install a component

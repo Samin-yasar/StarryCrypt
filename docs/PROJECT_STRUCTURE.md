@@ -18,13 +18,8 @@ StarryCrypt/
 │
 ├── src/                            # 📝 Source code
 │   ├── components/                # React components
-│   │   ├── ui/                   # Shadcn UI components (auto-generated)
-│   │   │   ├── button.tsx        # Button component
-│   │   │   ├── input.tsx         # Input component
-│   │   │   ├── dialog.tsx        # Modal dialog
-│   │   │   ├── form.tsx          # Form wrapper
-│   │   │   ├── toaster.tsx       # Toast notifications
-│   │   │   └── ...               # Other UI components
+│   │   ├── ui/                   # sonner.tsx (toast wrapper), the only UI primitive in use
+│   │   ├── ErrorBoundary.tsx     # Contains render errors (e.g. QR code) instead of blanking the app
 │   │   └── [Custom components]   # Application-specific components
 │   │
 │   ├── pages/                     # Page components
@@ -96,9 +91,9 @@ StarryCrypt/
 **Purpose**: Root component and router configuration
 
 **Responsibilities**:
-- Sets up React Query provider
+- Wraps the app in an error boundary
 - Configures React Router
-- Manages theme/tooltip providers
+- Renders the toast container
 - Defines application routes
 
 ```typescript
@@ -274,17 +269,9 @@ Use as reference for `.env.local`
 
 ### UI Components (`src/components/ui/`)
 
-Generated from shadcn/ui, includes:
-- `button.tsx` - Reusable button
-- `input.tsx` - Form input
-- `dialog.tsx` - Modal dialogs
-- `form.tsx` - Form wrapper
-- `toaster.tsx` - Toast notifications
-- `tabs.tsx` - Tabbed interface
-- `label.tsx` - Form labels
-- And 20+ more...
+Only `sonner.tsx` (the toast container) remains. Unused shadcn/ui primitives and their Radix, form and chart dependencies were removed to shrink the bundle and the dependency audit surface. Add new primitives with the shadcn CLI when needed.
 
-**Purpose**: Consistent, accessible UI primitives
+**Purpose**: Toast notifications
 
 ### Page Components (`src/pages/`)
 
@@ -339,15 +326,11 @@ Decrypted Result → State → UI Display
 
 ## State Management
 
-**Library**: React Query (TanStack Query)
+**Library**: React (`useState`, `useCallback`, `useEffect`)
 
-**Purpose**: Cache and synchronize async data
+**Purpose**: Hold text, password, output and UI flags in memory only
 
-**Key hooks**:
-- `useQuery()` - Fetch and cache data
-- `useMutation()` - Async operations
-
-**Usage**: Manage encryption/decryption state
+**Usage**: `Index.tsx` owns the state and passes it to `InputCard`, `OutputCard` and `SecurityPanel`
 
 ## Styling Strategy
 
@@ -490,19 +473,17 @@ index.html
   └─ main.tsx
       └─ App.tsx
           ├─ pages/Index.tsx
-          │   ├─ components/ui/*
-          │   ├─ lib/crypto.ts
+          │   ├─ components/{InputCard,OutputCard,SecurityPanel,Navbar}
+          │   ├─ lib/crypto.ts, share.ts, qr.ts, clipboard.ts, password.ts
           │   └─ lib/utils.ts
           │
           └─ pages/NotFound.tsx
-              └─ components/ui/button.tsx
 
 External Libraries:
 ├─ React 18
 ├─ React Router
-├─ React Query (TanStack)
 ├─ Tailwind CSS
-├─ Radix UI
+├─ Sonner (toasts)
 ├─ Lucide Icons
 └─ Web Crypto API (built-in)
 ```

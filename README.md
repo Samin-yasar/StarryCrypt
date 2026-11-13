@@ -31,18 +31,18 @@ Perfect for securely sharing sensitive messages, storing encrypted notes, or lea
 - **Zero-Knowledge Architecture**: All cryptographic operations are executed locally in your browser. No server communication is involved in the encryption/decryption process.
 - **Seamless Sharing**: Share encrypted messages via QR codes, direct URL sharing, or file downloads.
 - **Internationalization (i18n)**: Built-in multi-language UI support for global accessibility.
-- **Modern UI/UX**: A beautiful, responsive interface built with React, Tailwind CSS, and shadcn/ui.
-- **Auto-cleanup**: Intelligent URL input handling with automatic query parameter sanitization to prevent accidental data leaks.
+- **Modern UI/UX**: A beautiful, responsive interface built with React and Tailwind CSS.
+- **Private share links**: Shared ciphertext lives in the URL fragment (`#encrypted=...`), which browsers never send to a server, and it is removed from the address bar after import. Old `?encrypted=` links still work.
+- **Hardened deployment**: `vercel.json` sets a strict Content-Security-Policy (including `frame-ancestors 'none'`), HSTS, `nosniff`, `no-referrer` and a restrictive Permissions-Policy.
 
 ## Tech Stack
 
 - **Frontend Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS & shadcn/ui
+- **Styling**: Tailwind CSS
 - **Cryptography**: Native Web Crypto API
 - **Routing**: React Router DOM
-- **Form Handling**: React Hook Form + Zod
-- **Icons & Components**: Lucide React, Radix UI, Recharts
+- **Icons & Toasts**: Lucide React, Sonner
 
 ## Security Model
 

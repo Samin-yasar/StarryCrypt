@@ -10,6 +10,7 @@ All cryptographic functions are located in `src/lib/crypto.ts`. These functions 
 
 - [encryptText()](#encrypttext)
 - [decryptText()](#decrypttext)
+- [getIterationCount()](#getiterationcount)
 - [normalizePassword()](#normalizepassword)
 - [computePasswordFingerprint()](#computepasswordfingerprint)
 - [Constants](#constants)
@@ -158,6 +159,16 @@ This prevents information leakage that could aid attackers.
 - ~1-5 seconds (same as encryption)
 - Time depends on iteration count stored in ciphertext
 - Slower for ciphertexts encrypted with higher iteration counts
+
+## getIterationCount()
+
+Reads the PBKDF2 iteration count from a ciphertext header without deriving a key.
+
+```typescript
+function getIterationCount(encryptedBase64: string): number | null
+```
+
+Returns `null` if the input is not a valid payload (bad Base64, too short, unknown version, or iterations outside 400,000 to 10,000,000). A legacy `|<hmac>` suffix is ignored. The UI uses it with `SLOW_DECRYPT_THRESHOLD` (2,000,000) to ask for confirmation before decrypting a message that was made with a very high iteration count, for example from a crafted share link. The UI itself offers 400,000, 600,000 and 1,000,000; the library accepts up to 10,000,000.
 
 ## normalizePassword()
 

@@ -80,6 +80,24 @@ export async function encryptText(text: string, password: string, iterations: nu
   return bytesToBase64(result);
 }
 
+/** Decryption cost above which the UI asks for confirmation (the format allows up to MAX_ITERATIONS). */
+export const SLOW_DECRYPT_THRESHOLD = 2000000;
+
+/** Reads the iteration count from a ciphertext header without any key derivation. Returns null if it is not a valid payload. */
+export function getIterationCount(encryptedBase64: string): number | null {
+  try {
+    const [encoded] = encryptedBase64.trim().split('|');
+    const bytes = base64ToBytes(encoded);
+    if (bytes.length < HEADER_SIZE + IV_SIZE + GCM_TAG_SIZE) return null;
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    if (view.getUint8(0) !== FORMAT_VERSION) return null;
+    const iterations = view.getUint32(1, false);
+    return iterations >= MIN_ITERATIONS && iterations <= MAX_ITERATIONS ? iterations : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function decryptText(encryptedBase64: string, password: string): Promise<string> {
   // Output from earlier versions carried a "|<hmac>" suffix. Base64 never contains "|",
   // so the suffix is dropped; GCM authenticates the payload on its own.

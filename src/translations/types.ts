@@ -38,6 +38,14 @@ export interface Translations {
   shareEncrypted: string;
   shareOnlyEncrypted: string;
   importedEncryptedInput: string;
+  qrOnlyEncrypted: string;
+  qrFailed: string;
+  clipboardClearFailed: string;
+  starIdTooltip: string;
+  weakPasswordHint: string;
+  showPassword: string;
+  hidePassword: string;
+  slowDecryptConfirm: string;
 }
 
 export type Lang = 'en' | 'fr' | 'es' | 'ja' | 'ko' | 'bn';

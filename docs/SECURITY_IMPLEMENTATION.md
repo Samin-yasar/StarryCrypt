@@ -220,7 +220,7 @@ Earlier versions optionally appended `|<HMAC-SHA512>`, keyed with the same passw
 
 ### 6. StarID (Password Fingerprint)
 
-The StarID shown next to the password is a typo check only.
+The StarID is shown beside the password label (not in the output area). It is cleared immediately whenever the password changes and recomputed 500 ms after typing stops, so a stale value never looks like a match. It is a typo check only.
 
 - Derived with PBKDF2-SHA512 (210,000 iterations) from the normalized password and a fixed salt, `StarryCrypt/password-fingerprint/v1`, which is unrelated to the per-message encryption salt
 - Truncated to 16 bits (4 hex characters)
@@ -228,7 +228,22 @@ The StarID shown next to the password is a typo check only.
 
 It replaces an earlier display of 48 bits of an unsalted SHA-256 of the password, which allowed fast offline guess testing from a screenshot. With 16 bits and a slow KDF, a leaked StarID narrows the password very little and every guess still costs a full derivation. A weak password can still be confirmed against it, so avoid sharing screenshots that show it.
 
-### 7. Protocol Structure
+### 7. Sharing, QR Codes and Clipboard
+
+- **Share links** put the ciphertext in the URL fragment (`#encrypted=...`). Fragments are not sent to servers, so the ciphertext stays out of access logs, analytics and `Referer` headers, and long messages are not rejected by server URL limits. The link is removed from the address bar after import. Old `?encrypted=` links are still read.
+- **QR codes** are limited by bytes (2,331 at error-correction level M), not characters, because non-Latin text uses several bytes per character. They are only offered for encrypted output, never decrypted plaintext, close when the output changes, and are wrapped in an error boundary so an unexpected failure cannot blank the app.
+- **Clipboard auto-clear** (30 s, on by default) clears the clipboard after copying the output. Only one clear is pending at a time. If read access is already granted, a newer clipboard value is left alone. Failures (for example the tab lost focus) are reported instead of claiming success. This clears the clipboard only; JavaScript cannot wipe strings from memory.
+- **Slow-decrypt confirmation**: decrypting a message that needs more than 2,000,000 iterations asks first, since a crafted link could otherwise keep the user waiting for tens of seconds.
+
+### 8. Deployment Hardening
+
+`vercel.json` sets a Content-Security-Policy (with `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`), HSTS, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY` and a restrictive Permissions-Policy. See `docs/DEPLOYMENT.md`.
+
+### 9. Password Guidance
+
+The UI shows a hint for passwords under 12 characters and rejects blank (whitespace-only) passwords for encryption. Security depends on password entropy, so prefer a passphrase of 4 or more random words.
+
+### 10. Protocol Structure
 
 #### Format Version 1 Specification
 

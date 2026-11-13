@@ -198,13 +198,13 @@ npm ls
 npm run lint
 ```
 
-### URL Query Parameters Lost
+### Shared Link Opens Empty
 
-**Error**: Encrypted text in URL disappears
+**Error**: Opening an "Encrypted URL" does not fill the input
 
-**Cause**: Browser or proxy sanitizing URL
+**Cause**: Share links keep the ciphertext in the URL fragment (`#encrypted=...`). Some chat apps, link shorteners or redirects drop the fragment. Links are also cleaned from the address bar after the first import, so reloading the page will not re-import them.
 
-**Solution**: Use the "Copy" button instead of URL sharing
+**Solution**: Use the "Copy" button and send the ciphertext as text, or re-share the link
 
 ## Encryption/Decryption Issues
 
