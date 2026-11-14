@@ -48,6 +48,12 @@ const es: Translations = {
   showPassword: "Mostrar contraseña",
   hidePassword: "Ocultar contraseña",
   slowDecryptConfirm: "Este mensaje usa {count} iteraciones de estiramiento de clave y descifrarlo puede tardar mucho. ¿Continuar?",
+  qrContent: "Contenido del código QR",
+  qrModeLink: "Enlace",
+  qrModeText: "Texto",
+  qrHintLink: "Al escanear se abre StarryCrypt con este mensaje cifrado ya cargado. Aún necesita la contraseña.",
+  qrHintText: "Al escanear se muestra el texto cifrado. Péguelo en StarryCrypt para descifrarlo. Funciona sin ningún sitio web.",
+  qrModeTooLong: "Demasiado largo para un código QR en este modo. Pruebe el otro modo o comparta el texto.",
 };
 
 export default es;

@@ -4,7 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Translations } from '@/translations';
 import { toast } from 'sonner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { QR_ERROR_LEVEL, canRenderQr } from '@/lib/qr';
+import { QR_ERROR_LEVEL, QrMode, canRenderQr, defaultQrMode, qrValue } from '@/lib/qr';
 
 interface OutputCardProps {
   output: string;
@@ -21,6 +21,8 @@ export function OutputCard({ output, outputKind, isProcessing, onClearOutput, on
   // The QR is tied to the exact output it was opened for, so it closes itself when the output changes.
   const [qrOutput, setQrOutput] = useState<string | null>(null);
   const showQr = output !== '' && qrOutput === output;
+  const [qrMode, setQrMode] = useState<QrMode>(() => defaultQrMode(window.location.protocol));
+  const qrData = showQr ? qrValue(qrMode, output, window.location) : '';
 
   const handleQr = () => {
     if (!output) return;
@@ -66,13 +68,39 @@ export function OutputCard({ output, outputKind, isProcessing, onClearOutput, on
       />
 
       {showQr && output && outputKind === 'encrypted' && (
-        <div className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-white border border-border">
-          <ErrorBoundary
-            resetKey={output}
-            fallback={<p className="text-sm text-muted-foreground text-center">{t.qrFailed}</p>}
-          >
-            <QRCodeSVG value={output} size={220} level={QR_ERROR_LEVEL} />
-          </ErrorBoundary>
+        <div className="flex flex-col items-center gap-4">
+          <div role="group" aria-label={t.qrContent} className="flex items-center gap-2">
+            {(['link', 'text'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                aria-pressed={qrMode === mode}
+                onClick={() => setQrMode(mode)}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold border border-border transition-colors cursor-pointer ${
+                  qrMode === mode
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground hover:opacity-80'
+                }`}
+              >
+                {mode === 'link' ? t.qrModeLink : t.qrModeText}
+              </button>
+            ))}
+          </div>
+          {canRenderQr(qrData) ? (
+            <div className="p-4 rounded-2xl bg-white border border-border">
+              <ErrorBoundary
+                resetKey={qrData}
+                fallback={<p className="text-sm text-neutral-700 text-center">{t.qrFailed}</p>}
+              >
+                <QRCodeSVG value={qrData} size={220} level={QR_ERROR_LEVEL} />
+              </ErrorBoundary>
+            </div>
+          ) : (
+            <p role="alert" className="text-sm text-muted-foreground text-center max-w-xs">{t.qrModeTooLong}</p>
+          )}
+          <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-sm leading-relaxed">
+            {qrMode === 'link' ? t.qrHintLink : t.qrHintText}
+          </p>
           <button
             onClick={() => setQrOutput(null)}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 cursor-pointer"

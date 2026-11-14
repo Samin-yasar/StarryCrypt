@@ -38,6 +38,12 @@ export interface Translations {
   shareEncrypted: string;
   shareOnlyEncrypted: string;
   importedEncryptedInput: string;
+  qrContent: string;
+  qrModeTooLong: string;
+  qrModeLink: string;
+  qrModeText: string;
+  qrHintLink: string;
+  qrHintText: string;
   qrOnlyEncrypted: string;
   qrFailed: string;
   clipboardClearFailed: string;

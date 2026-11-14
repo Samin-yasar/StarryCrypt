@@ -48,6 +48,12 @@ const ja: Translations = {
   showPassword: "パスワードを表示",
   hidePassword: "パスワードを非表示",
   slowDecryptConfirm: "このメッセージは{count}回の鍵ストレッチングを使用しており、復号に時間がかかる場合があります。続行しますか？",
+  qrContent: "QRコードの内容",
+  qrModeLink: "リンク",
+  qrModeText: "テキスト",
+  qrHintLink: "スキャンすると、この暗号文が入力済みの状態でStarryCryptが開きます。パスワードは引き続き必要です。",
+  qrHintText: "スキャンすると暗号化されたテキストが表示されます。StarryCryptに貼り付けて復号してください。ウェブサイトなしで使えます。",
+  qrModeTooLong: "このモードではQRコードには長すぎます。もう一方のモードを試すか、テキストを共有してください。",
 };
 
 export default ja;

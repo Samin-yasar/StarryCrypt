@@ -33,6 +33,34 @@ describe("OutputCard QR code", () => {
     expect(screen.queryByText(t.qrFailed)).toBeNull();
   });
 
+  it("offers Link and Text modes, defaults to Text on a non-HTTPS origin, and can switch", () => {
+    renderCard("a".repeat(100), "encrypted");
+    fireEvent.click(screen.getByRole("button", { name: t.qrCode }));
+    const text = screen.getByRole("button", { name: t.qrModeText });
+    const link = screen.getByRole("button", { name: t.qrModeLink });
+    expect(text.getAttribute("aria-pressed")).toBe("true");
+    expect(link.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByText(t.qrHintText)).toBeTruthy();
+
+    fireEvent.click(link);
+    expect(link.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByText(t.qrHintLink)).toBeTruthy();
+    expect(screen.queryByText(t.qrFailed)).toBeNull();
+  });
+
+  it("shows a message instead of crashing when only the link form is too long", () => {
+    renderCard("a".repeat(2300), "encrypted");
+    fireEvent.click(screen.getByRole("button", { name: t.qrCode }));
+    expect(screen.queryByText(t.qrModeTooLong)).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: t.qrModeLink }));
+    expect(screen.getByText(t.qrModeTooLong)).toBeTruthy();
+    expect(screen.getByRole("button", { name: t.closeQr })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: t.qrModeText }));
+    expect(screen.queryByText(t.qrModeTooLong)).toBeNull();
+  });
+
   it("does not crash for output between the old (2,953) and real (2,331) limits", () => {
     renderCard("a".repeat(QR_MAX_BYTES + 200), "encrypted");
     fireEvent.click(screen.getByRole("button", { name: t.qrCode }));

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { canRenderQr, QR_MAX_BYTES } from "@/lib/qr";
+import { canRenderQr, defaultQrMode, qrValue, QR_MAX_BYTES } from "@/lib/qr";
 import { buildShareUrl, extractSharedPayload } from "@/lib/share";
 import { isBlankPassword, isShortPassword } from "@/lib/password";
 import { scheduleClipboardClear, cancelClipboardClear } from "@/lib/clipboard";
@@ -18,6 +18,31 @@ describe("canRenderQr", () => {
 
   it("rejects empty values", () => {
     expect(canRenderQr("")).toBe(false);
+  });
+});
+
+describe("QR modes", () => {
+  const where = { origin: "https://starry.example", pathname: "/" };
+
+  it("text mode encodes the raw ciphertext", () => {
+    expect(qrValue("text", "AB+/=", where)).toBe("AB+/=");
+  });
+
+  it("link mode encodes a fragment share URL, not a query string", () => {
+    const value = qrValue("link", "AB+/=", where);
+    expect(value).toBe("https://starry.example/#encrypted=AB%2B%2F%3D");
+    expect(value).not.toContain("?");
+  });
+
+  it("link mode is larger than text mode for the same ciphertext", () => {
+    const ct = "+/=".repeat(300);
+    expect(new TextEncoder().encode(qrValue("link", ct, where)).length).toBeGreaterThan(ct.length * 2);
+  });
+
+  it("defaults to a link only on HTTPS origins", () => {
+    expect(defaultQrMode("https:")).toBe("link");
+    expect(defaultQrMode("http:")).toBe("text");
+    expect(defaultQrMode("file:")).toBe("text");
   });
 });
 

@@ -29,7 +29,7 @@ Perfect for securely sharing sensitive messages, storing encrypted notes, or lea
 
 - **Robust Security**: Utilizes industry-standard cryptographic algorithms (AES-GCM-256, PBKDF2-SHA-512).
 - **Zero-Knowledge Architecture**: All cryptographic operations are executed locally in your browser. No server communication is involved in the encryption/decryption process.
-- **Seamless Sharing**: Share encrypted messages via QR codes, direct URL sharing, or file downloads.
+- **Seamless Sharing**: Share encrypted messages via QR codes (as a scannable link or as raw text), direct URL sharing, or file downloads.
 - **Internationalization (i18n)**: Built-in multi-language UI support for global accessibility.
 - **Modern UI/UX**: A beautiful, responsive interface built with React and Tailwind CSS.
 - **Private share links**: Shared ciphertext lives in the URL fragment (`#encrypted=...`), which browsers never send to a server, and it is removed from the address bar after import. Old `?encrypted=` links still work.
