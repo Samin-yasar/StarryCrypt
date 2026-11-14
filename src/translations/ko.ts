@@ -48,6 +48,12 @@ const ko: Translations = {
   showPassword: "비밀번호 표시",
   hidePassword: "비밀번호 숨기기",
   slowDecryptConfirm: "이 메시지는 {count}회의 키 스트레칭을 사용하므로 복호화에 오래 걸릴 수 있습니다. 계속할까요?",
+  qrContent: "QR 코드 내용",
+  qrModeLink: "링크",
+  qrModeText: "텍스트",
+  qrHintLink: "스캔하면 이 암호문이 이미 입력된 상태로 StarryCrypt가 열립니다. 비밀번호는 여전히 필요합니다.",
+  qrHintText: "스캔하면 암호화된 텍스트가 표시됩니다. StarryCrypt에 붙여넣어 복호화하세요. 웹사이트 없이도 사용할 수 있습니다.",
+  qrModeTooLong: "이 모드에서는 QR 코드에 너무 깁니다. 다른 모드를 사용하거나 텍스트를 공유하세요.",
 };
 
 export default ko;

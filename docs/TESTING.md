@@ -348,7 +348,7 @@ The suite declares `// @vitest-environment node` so it uses Node's Web Crypto an
 ### Other Suites
 
 - `lib.test.ts`: QR capacity counted in bytes (ASCII and Bengali boundaries), share links in the URL fragment (Base64 round trip, legacy `?encrypted=`, preserved extra parameters), blank/short password rules, and clipboard clearing (delay, one timer at a time, no wipe of newer clipboard contents, reported failure)
-- `output-card.test.tsx`: output between the old (2,953) and real (2,331) QR limits no longer crashes, QR is refused for decrypted plaintext, the QR closes when the output changes, buttons have accessible names, and `ErrorBoundary` shows its fallback and recovers when `resetKey` changes
+- `output-card.test.tsx`: Link and Text QR modes (defaults, switching, a message that fits as text but not as a link shows a notice instead of crashing); output between the old (2,953) and real (2,331) QR limits no longer crashes, QR is refused for decrypted plaintext, the QR closes when the output changes, buttons have accessible names, and `ErrorBoundary` shows its fallback and recovers when `resetKey` changes
 
 
 ### Security Considerations

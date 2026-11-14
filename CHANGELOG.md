@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- QR codes can now encode either a share link (scan to open the app with the message filled in) or the raw ciphertext; Link is the default on HTTPS origins
 - `vercel.json` with CSP (frame-ancestors none), HSTS, nosniff, no-referrer, X-Frame-Options and Permissions-Policy
 - Error boundary around the QR code and the whole app
 - Hint for short passwords; whitespace-only passwords rejected for encryption

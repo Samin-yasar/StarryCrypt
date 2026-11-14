@@ -48,6 +48,12 @@ const fr: Translations = {
   showPassword: "Afficher le mot de passe",
   hidePassword: "Masquer le mot de passe",
   slowDecryptConfirm: "Ce message utilise {count} itérations d'étirement de clé et son déchiffrement peut être très long. Continuer ?",
+  qrContent: "Contenu du code QR",
+  qrModeLink: "Lien",
+  qrModeText: "Texte",
+  qrHintLink: "Le scan ouvre StarryCrypt avec ce message chiffré déjà rempli. Le mot de passe reste nécessaire.",
+  qrHintText: "Le scan affiche le texte chiffré. Collez-le dans StarryCrypt pour le déchiffrer. Fonctionne sans site web.",
+  qrModeTooLong: "Trop long pour un code QR dans ce mode. Essayez l'autre mode ou partagez le texte.",
 };
 
 export default fr;

@@ -48,6 +48,12 @@ const en: Translations = {
   showPassword: "Show password",
   hidePassword: "Hide password",
   slowDecryptConfirm: "This message uses {count} key-stretching iterations and may take a long time to decrypt. Continue?",
+  qrContent: "QR code content",
+  qrModeLink: "Link",
+  qrModeText: "Text",
+  qrHintLink: "Scanning opens StarryCrypt with this encrypted message already filled in. You still need the password.",
+  qrHintText: "Scanning shows the encrypted text. Paste it into StarryCrypt to decrypt it. Works without any website.",
+  qrModeTooLong: "Too long for a QR code in this mode. Try the other mode or share the text.",
 };
 
 export default en;
