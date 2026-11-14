@@ -21,10 +21,10 @@ Solutions for common issues encountered when using or developing StarryCrypt.
 **Error**: `node: command not found`
 
 **Solution**:
-1. Install Node.js 18+ from [nodejs.org](https://nodejs.org)
+1. Install Node.js 22.22+ (or 24.15+) from [nodejs.org](https://nodejs.org)
 2. Verify installation:
    ```bash
-   node --version  # Should show v18+
+   node --version  # Should show v22.22+ or v24.15+
    npm --version   # Should show v9+
    ```
 
@@ -198,13 +198,13 @@ npm ls
 npm run lint
 ```
 
-### URL Query Parameters Lost
+### Shared Link Opens Empty
 
-**Error**: Encrypted text in URL disappears
+**Error**: Opening an "Encrypted URL" does not fill the input
 
-**Cause**: Browser or proxy sanitizing URL
+**Cause**: Share links keep the ciphertext in the URL fragment (`#encrypted=...`). Some chat apps, link shorteners or redirects drop the fragment. Links are also cleaned from the address bar after the first import, so reloading the page will not re-import them.
 
-**Solution**: Use the "Copy" button instead of URL sharing
+**Solution**: Use the "Copy" button and send the ciphertext as text, or re-share the link
 
 ## Encryption/Decryption Issues
 

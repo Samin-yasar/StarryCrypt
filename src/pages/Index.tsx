@@ -1,69 +1,99 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { Navbar } from '@/components/Navbar';
 import { InputCard } from '@/components/InputCard';
 import { OutputCard } from '@/components/OutputCard';
 import { SecurityPanel } from '@/components/SecurityPanel';
 import { useTheme } from '@/hooks/useTheme';
-import { Lang, getTranslations } from '@/translations';
-import { encryptText, decryptText, computeHmacSha512, computeSha256Fingerprint } from '@/lib/crypto';
+import { LANGUAGES, Lang, getTranslations } from '@/translations';
+import {
+  encryptText,
+  decryptText,
+  computePasswordFingerprint,
+  getIterationCount,
+  SLOW_DECRYPT_THRESHOLD,
+} from '@/lib/crypto';
+import { buildShareUrl, extractSharedPayload } from '@/lib/share';
+import { scheduleClipboardClear, cancelClipboardClear } from '@/lib/clipboard';
+import { isBlankPassword } from '@/lib/password';
+
+const CLIPBOARD_CLEAR_DELAY_MS = 30000;
 
 export default function Index() {
   const { isDark, toggle: toggleTheme } = useTheme();
   const [language, setLanguage] = useState<Lang>(() => {
-    const stored = localStorage.getItem('language') as Lang;
-    return stored || 'en';
+    const stored = localStorage.getItem('language');
+    return LANGUAGES.some((l) => l.value === stored) ? (stored as Lang) : 'en';
   });
   const t = getTranslations(language);
 
-  const [text, setText] = useState('');
+  const [sharedLink] = useState(() => extractSharedPayload(window.location.search, window.location.hash));
+  const [text, setText] = useState(sharedLink.payload ?? '');
   const [password, setPassword] = useState('');
   const [iterations, setIterations] = useState(400000);
   const [output, setOutput] = useState('');
   const [outputKind, setOutputKind] = useState<'encrypted' | 'decrypted' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [starId, setStarId] = useState('');
-  const [hmacEnabled, setHmacEnabled] = useState(true);
+  const [fingerprint, setFingerprint] = useState<{ password: string; id: string } | null>(null);
+  // A StarID only counts for the exact password it was computed from, so a stale ID is never shown while typing.
+  const starId = fingerprint && fingerprint.password === password ? fingerprint.id : '';
+  const importedShare = useRef(false);
   const [autoClearEnabled, setAutoClearEnabled] = useState(true);
 
   useEffect(() => {
     localStorage.setItem('language', language);
+    document.documentElement.lang = language;
   }, [language]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const encryptedInput = params.get('encrypted');
-    if (!encryptedInput) return;
-
-    setText(encryptedInput);
+    if (!sharedLink.payload || importedShare.current) return;
+    importedShare.current = true;
     toast.success(t.importedEncryptedInput);
+    window.history.replaceState({}, '', `${window.location.pathname}${sharedLink.search}${sharedLink.hash}`);
+  }, [sharedLink, t.importedEncryptedInput]);
 
-    params.delete('encrypted');
-    const nextQuery = params.toString();
-    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`;
-    window.history.replaceState({}, '', nextUrl);
+  useEffect(() => {
+    // Pasting a share link into the address bar of an already-open tab only changes the fragment,
+    // which does not reload the page.
+    const onHashChange = () => {
+      const { payload, search, hash } = extractSharedPayload(window.location.search, window.location.hash);
+      if (!payload) return;
+      setText(payload);
+      toast.success(t.importedEncryptedInput);
+      window.history.replaceState({}, '', `${window.location.pathname}${search}${hash}`);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, [t.importedEncryptedInput]);
 
   useEffect(() => {
-    if (password) {
-      computeSha256Fingerprint(password).then(setStarId);
-    } else {
-      setStarId('');
-    }
+    if (!password) return;
+
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      computePasswordFingerprint(password)
+        .then((id) => {
+          if (!cancelled) setFingerprint({ password, id });
+        })
+        .catch(() => {
+          if (!cancelled) setFingerprint(null);
+        });
+    }, 500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [password]);
 
   const handleEncrypt = useCallback(async () => {
-    if (!text.trim() || !password) {
+    if (isProcessing) return;
+    if (!text.trim() || isBlankPassword(password)) {
       toast.error(t.errorEmpty);
       return;
     }
     try {
       setIsProcessing(true);
-      let result = await encryptText(text, password, iterations);
-      if (hmacEnabled) {
-        const hmac = await computeHmacSha512(result, password);
-        result = `${result}|${hmac}`;
-      }
+      const result = await encryptText(text, password, iterations);
       setOutput(result);
       setOutputKind('encrypted');
       toast.success(t.successEncrypt);
@@ -72,27 +102,27 @@ export default function Index() {
     } finally {
       setIsProcessing(false);
     }
-  }, [text, password, iterations, hmacEnabled, t]);
+  }, [text, password, iterations, isProcessing, t]);
 
   const handleDecrypt = useCallback(async () => {
-    let input = text.trim();
+    if (isProcessing) return;
+    const input = text.trim();
     if (!input || !password) {
       toast.error(t.errorEmpty);
       return;
     }
+
+    const requiredIterations = getIterationCount(input);
+    if (
+      requiredIterations !== null &&
+      requiredIterations > SLOW_DECRYPT_THRESHOLD &&
+      !window.confirm(t.slowDecryptConfirm.replace('{count}', requiredIterations.toLocaleString()))
+    ) {
+      return;
+    }
+
     try {
       setIsProcessing(true);
-      if (hmacEnabled || input.includes('|')) {
-        const [data, providedHmac] = input.split('|');
-        if (providedHmac) {
-          const computedHmac = await computeHmacSha512(data, password);
-          if (computedHmac !== providedHmac) {
-            toast.error(t.errorHmac);
-            return;
-          }
-          input = data;
-        }
-      }
       const result = await decryptText(input, password);
       setOutput(result);
       setOutputKind('decrypted');
@@ -102,7 +132,7 @@ export default function Index() {
     } finally {
       setIsProcessing(false);
     }
-  }, [text, password, hmacEnabled, t]);
+  }, [text, password, isProcessing, t]);
 
   const handleCopy = useCallback(async () => {
     if (!output) return;
@@ -110,10 +140,12 @@ export default function Index() {
       await navigator.clipboard.writeText(output);
       toast.success(t.successCopy);
       if (autoClearEnabled) {
-        setTimeout(async () => {
-          await navigator.clipboard.writeText('');
-          toast.info(t.clipboardCleared);
-        }, 30000);
+        scheduleClipboardClear(output, CLIPBOARD_CLEAR_DELAY_MS, (result) => {
+          if (result === 'cleared') toast.info(t.clipboardCleared);
+          if (result === 'failed') toast.warning(t.clipboardClearFailed);
+        });
+      } else {
+        cancelClipboardClear();
       }
     } catch {
       toast.error(t.clipboardBlocked);
@@ -122,14 +154,14 @@ export default function Index() {
 
   const handleDownload = useCallback(() => {
     if (!output) return;
-    const blob = new Blob([output], { type: 'text/plain' });
+    const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'encrypt.enc.txt';
+    a.download = outputKind === 'decrypted' ? 'decrypted.txt' : 'encrypted.enc.txt';
     a.click();
     URL.revokeObjectURL(url);
-  }, [output]);
+  }, [output, outputKind]);
 
   const handleShare = useCallback(async () => {
     if (!output) return;
@@ -137,7 +169,7 @@ export default function Index() {
       toast.error(t.shareOnlyEncrypted);
       return;
     }
-    const url = `${window.location.origin}${window.location.pathname}?encrypted=${encodeURIComponent(output)}`;
+    const url = buildShareUrl(window.location.origin, window.location.pathname, output);
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t.successCopy);
@@ -161,7 +193,7 @@ export default function Index() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'Enter') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         handleEncrypt();
       }
@@ -199,6 +231,7 @@ export default function Index() {
             onClearPassword={handleClearPassword}
             iterations={iterations}
             onIterationsChange={setIterations}
+            starId={starId}
             onEncrypt={handleEncrypt}
             onDecrypt={handleDecrypt}
             isProcessing={isProcessing}
@@ -207,8 +240,8 @@ export default function Index() {
 
           <OutputCard
             output={output}
+            outputKind={outputKind}
             isProcessing={isProcessing}
-            starId={starId}
             onClearOutput={handleClearOutput}
             onCopy={handleCopy}
             onDownload={handleDownload}
@@ -217,8 +250,6 @@ export default function Index() {
           />
 
           <SecurityPanel
-            hmacEnabled={hmacEnabled}
-            onHmacChange={setHmacEnabled}
             autoClearEnabled={autoClearEnabled}
             onAutoClearChange={setAutoClearEnabled}
             t={t}

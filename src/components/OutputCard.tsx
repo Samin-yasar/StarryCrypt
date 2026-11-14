@@ -3,11 +3,13 @@ import { Copy, Download, Link, Loader2, QrCode, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Translations } from '@/translations';
 import { toast } from 'sonner';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { QR_ERROR_LEVEL, canRenderQr } from '@/lib/qr';
 
 interface OutputCardProps {
   output: string;
+  outputKind: 'encrypted' | 'decrypted' | null;
   isProcessing: boolean;
-  starId: string;
   onClearOutput: () => void;
   onCopy: () => void;
   onDownload: () => void;
@@ -15,24 +17,28 @@ interface OutputCardProps {
   t: Translations;
 }
 
-const QR_MAX_LENGTH = 2953;
-
-export function OutputCard({ output, isProcessing, starId, onClearOutput, onCopy, onDownload, onShare, t }: OutputCardProps) {
-  const [showQr, setShowQr] = useState(false);
+export function OutputCard({ output, outputKind, isProcessing, onClearOutput, onCopy, onDownload, onShare, t }: OutputCardProps) {
+  // The QR is tied to the exact output it was opened for, so it closes itself when the output changes.
+  const [qrOutput, setQrOutput] = useState<string | null>(null);
+  const showQr = output !== '' && qrOutput === output;
 
   const handleQr = () => {
     if (!output) return;
-    if (output.length > QR_MAX_LENGTH) {
+    if (outputKind !== 'encrypted') {
+      toast.error(t.qrOnlyEncrypted);
+      return;
+    }
+    if (!canRenderQr(output)) {
       toast.warning(t.qrTooLong);
       return;
     }
-    setShowQr(true);
+    setQrOutput(output);
   };
 
   return (
     <section className="glass-card p-5 sm:p-8 md:p-10 space-y-5 sm:space-y-6">
       <div className="flex items-center justify-between">
-        <label className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
+        <label htmlFor="secure-output" className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest">
           {t.secureOutput}
         </label>
         <div className="flex items-center gap-3">
@@ -45,17 +51,13 @@ export function OutputCard({ output, isProcessing, starId, onClearOutput, onCopy
             {t.clearOutput}
           </button>
           {isProcessing && (
-            <Loader2 className="w-5 h-5 text-primary animate-spin-slow" />
-          )}
-          {starId && (
-            <span className="text-xs sm:text-sm font-mono font-bold text-brand-badge-text bg-brand-badge-bg px-2.5 py-1 rounded-lg">
-              ID: {starId}
-            </span>
+            <Loader2 className="w-5 h-5 text-primary animate-spin-slow" aria-hidden="true" />
           )}
         </div>
       </div>
 
       <textarea
+        id="secure-output"
         readOnly
         value={output}
         className="input-field h-36 sm:h-48 md:h-56 font-mono text-sm sm:text-base leading-relaxed resize-none"
@@ -63,11 +65,16 @@ export function OutputCard({ output, isProcessing, starId, onClearOutput, onCopy
         placeholder={t.resultPlaceholder}
       />
 
-      {showQr && output && (
+      {showQr && output && outputKind === 'encrypted' && (
         <div className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-white border border-border">
-          <QRCodeSVG value={output} size={220} level="M" />
+          <ErrorBoundary
+            resetKey={output}
+            fallback={<p className="text-sm text-muted-foreground text-center">{t.qrFailed}</p>}
+          >
+            <QRCodeSVG value={output} size={220} level={QR_ERROR_LEVEL} />
+          </ErrorBoundary>
           <button
-            onClick={() => setShowQr(false)}
+            onClick={() => setQrOutput(null)}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 cursor-pointer"
             type="button"
           >
@@ -81,6 +88,7 @@ export function OutputCard({ output, isProcessing, starId, onClearOutput, onCopy
         <button
           onClick={onCopy}
           disabled={!output}
+          aria-label={t.copy}
           className="bg-secondary text-secondary-foreground font-semibold py-2.5 sm:py-3.5 px-3 sm:px-6 rounded-2xl hover:opacity-80 active:scale-[0.97] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 border border-border text-sm sm:text-base"
           type="button"
         >
@@ -90,6 +98,7 @@ export function OutputCard({ output, isProcessing, starId, onClearOutput, onCopy
         <button
           onClick={onDownload}
           disabled={!output}
+          aria-label={t.save}
           className="bg-secondary text-secondary-foreground font-semibold py-2.5 sm:py-3.5 px-3 sm:px-6 rounded-2xl hover:opacity-80 active:scale-[0.97] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 border border-border text-sm sm:text-base"
           type="button"
         >
@@ -99,6 +108,7 @@ export function OutputCard({ output, isProcessing, starId, onClearOutput, onCopy
         <button
           onClick={onShare}
           disabled={!output}
+          aria-label={t.shareEncrypted}
           className="bg-secondary text-secondary-foreground font-semibold py-2.5 sm:py-3.5 px-3 sm:px-6 rounded-2xl hover:opacity-80 active:scale-[0.97] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 border border-border text-sm sm:text-base"
           type="button"
         >
@@ -108,6 +118,7 @@ export function OutputCard({ output, isProcessing, starId, onClearOutput, onCopy
         <button
           onClick={handleQr}
           disabled={!output}
+          aria-label={t.qrCode}
           className="bg-secondary text-secondary-foreground font-semibold py-2.5 sm:py-3.5 px-3 sm:px-6 rounded-2xl hover:opacity-80 active:scale-[0.97] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 border border-border text-sm sm:text-base"
           type="button"
           title={t.qrTooltip}

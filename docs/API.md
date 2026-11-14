@@ -10,8 +10,9 @@ All cryptographic functions are located in `src/lib/crypto.ts`. These functions 
 
 - [encryptText()](#encrypttext)
 - [decryptText()](#decrypttext)
-- [computeHmacSha512()](#computehmacsha512)
-- [computeSha256Fingerprint()](#computesha256fingerprint)
+- [getIterationCount()](#getiterationcount)
+- [normalizePassword()](#normalizepassword)
+- [computePasswordFingerprint()](#computepasswordfingerprint)
 - [Constants](#constants)
 - [Error Handling](#error-handling)
 - [Examples](#examples)
@@ -36,7 +37,7 @@ async function encryptText(
 | Parameter | Type | Description | Constraints |
 |-----------|------|-------------|-------------|
 | `text` | string | The plaintext to encrypt | Any string, empty string allowed |
-| `password` | string | Password for key derivation | Any string, non-empty recommended |
+| `password` | string | Password for key derivation (normalized to NFKC) | Any string, non-empty recommended |
 | `iterations` | number | PBKDF2 iterations for key derivation | 400,000 - 10,000,000 (clamped automatically) |
 
 ### Returns
@@ -105,8 +106,8 @@ async function decryptText(
 
 | Parameter | Type | Description | Constraints |
 |-----------|------|-------------|-------------|
-| `encryptedBase64` | string | Base64-encoded ciphertext from `encryptText()` | Must be valid Base64 |
-| `password` | string | Password used during encryption | Must match encryption password exactly |
+| `encryptedBase64` | string | Base64-encoded ciphertext from `encryptText()` | Must be valid Base64. A legacy `\|<hmac>` suffix from older versions is ignored |
+| `password` | string | Password used during encryption | Must match after NFKC normalization (raw form also tried for legacy data) |
 
 ### Returns
 
@@ -159,111 +160,58 @@ This prevents information leakage that could aid attackers.
 - Time depends on iteration count stored in ciphertext
 - Slower for ciphertexts encrypted with higher iteration counts
 
-## computeHmacSha512()
+## getIterationCount()
 
-Generates an HMAC-SHA512 authentication tag for data verification.
+Reads the PBKDF2 iteration count from a ciphertext header without deriving a key.
+
+```typescript
+function getIterationCount(encryptedBase64: string): number | null
+```
+
+Returns `null` if the input is not a valid payload (bad Base64, too short, unknown version, or iterations outside 400,000 to 10,000,000). A legacy `|<hmac>` suffix is ignored. The UI uses it with `SLOW_DECRYPT_THRESHOLD` (2,000,000) to ask for confirmation before decrypting a message that was made with a very high iteration count, for example from a crafted share link. The UI itself offers 400,000, 600,000 and 1,000,000; the library accepts up to 10,000,000.
+
+## normalizePassword()
+
+Normalizes a password to Unicode NFKC before it is used for key derivation.
 
 ### Signature
 
 ```typescript
-async function computeHmacSha512(
-  data: string,
-  key: string
-): Promise<string>
+function normalizePassword(password: string): string
 ```
 
-### Parameters
+### Details
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `data` | string | The data to authenticate |
-| `key` | string | The HMAC key |
+`encryptText()` and `decryptText()` call this automatically. It guarantees that the same visible password produces the same key bytes whether it was typed with composed characters (`é`, U+00E9) or decomposed ones (`e` + U+0301), and folds compatibility forms such as full-width letters (`ＡＢＣ` becomes `ABC`).
+
+Backward compatibility: data encrypted before normalization was introduced used the raw password bytes. `decryptText()` therefore tries the normalized password first and, only if that fails and the raw password differs, tries the raw form. ASCII passwords are unaffected.
+
+## computePasswordFingerprint()
+
+Produces the short "StarID" shown beside the password so a user can confirm they typed the same password twice.
+
+### Signature
+
+```typescript
+async function computePasswordFingerprint(password: string): Promise<string>
+```
 
 ### Returns
 
-**Type:** `Promise<string>`
+An uppercase hexadecimal string of exactly 4 characters (16 bits), for example `"A7F3"`.
 
-Hexadecimal string representation of the HMAC-SHA512 hash (128 hex characters = 512 bits).
+### How it is derived
 
-### Example
-
-```typescript
-import { computeHmacSha512 } from '@/lib/crypto';
-
-async function authenticate() {
-  const data = 'Important message';
-  const key = 'secret-key';
-
-  const hmac = await computeHmacSha512(data, key);
-  console.log('HMAC:', hmac);
-  // Output: "a7f3e2c1d9b8..."
-}
-```
-
-### Use Cases
-
-- Verify data hasn't been tampered with
-- Message authentication codes
-- Digital signatures (not cryptographically complete)
-- Integrity checking
+- PBKDF2-SHA512, 210,000 iterations, over the NFKC-normalized password
+- A fixed, domain-separated salt (`StarryCrypt/password-fingerprint/v1`), never the encryption salt, so the value is unrelated to the encryption key
+- Output truncated to 16 bits
 
 ### Security Notes
 
-- HMAC-SHA512 uses SHA-512 hash function (512-bit output)
-- Requires knowledge of the key to forge valid HMACs
-- Not suitable for digital signatures (use RSA/ECDSA instead)
-- Key should be kept secret
-
-## computeSha256Fingerprint()
-
-Generates a shortened SHA-256 fingerprint for human-readable display.
-
-### Signature
-
-```typescript
-async function computeSha256Fingerprint(
-  data: string
-): Promise<string>
-```
-
-### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `data` | string | The data to fingerprint |
-
-### Returns
-
-**Type:** `Promise<string>`
-
-Uppercase hexadecimal string, first 12 characters of SHA-256 hash.
-
-### Example
-
-```typescript
-import { computeSha256Fingerprint } from '@/lib/crypto';
-
-async function getFingerprint() {
-  const ciphertext = 'AQAAAAk5VvI...';
-
-  const fingerprint = await computeSha256Fingerprint(ciphertext);
-  console.log('Fingerprint:', fingerprint);
-  // Output: "A7F3E2C1D9B8"
-}
-```
-
-### Use Cases
-
-- Display abbreviated hash for quick visual verification
-- QR code labels
-- Message identification
-- Short identifier for logs
-
-### Properties
-
-- **Length**: 12 hex characters (48 bits)
-- **Collision Probability**: ~2^-48 for random data (very low)
-- **Purpose**: Visual identification, not cryptographic guarantee
+- It is a typo check, not a secret and not a key. It must not be used for authentication or integrity.
+- It is deliberately short and slow: 16 bits narrows a guess very little, and each guess still costs a full PBKDF2 run. Do not share screenshots of the StarID if the password is weak.
+- The UI debounces the computation (500 ms after the last keystroke) so it does not run on every keypress.
+- There is no separate HMAC or integrity API. Integrity and authenticity of ciphertexts come from AES-GCM with the header as additional authenticated data.
 
 ## Constants
 
@@ -414,26 +362,13 @@ export function CryptoDemo() {
 }
 ```
 
-### Verifying Data Integrity
+### Showing a StarID
 
 ```typescript
-import { computeHmacSha512, computeSha256Fingerprint } from '@/lib/crypto';
+import { computePasswordFingerprint } from '@/lib/crypto';
 
-async function verifyIntegrity() {
-  const data = 'Important data';
-  const key = 'shared-key';
-
-  // Generate HMAC
-  const hmac = await computeHmacSha512(data, key);
-  
-  // Later, verify HMAC
-  const hmacCheck = await computeHmacSha512(data, key);
-  console.log('Verified:', hmac === hmacCheck); // true
-
-  // Generate fingerprint for display
-  const fingerprint = await computeSha256Fingerprint(data);
-  console.log('Fingerprint:', fingerprint); // "ABC123DEF456"
-}
+const starId = await computePasswordFingerprint('correct horse battery staple');
+console.log(starId); // 4 hex characters, e.g. "A7F3"
 ```
 
 ## Security Notes
@@ -460,14 +395,14 @@ async function verifyIntegrity() {
 |----------|---------|------------|
 | `encryptText()` | Encrypt data with password | Primary use case |
 | `decryptText()` | Decrypt data with password | Primary use case |
-| `computeHmacSha512()` | Verify authenticity | Optional enhancement |
-| `computeSha256Fingerprint()` | Display abbreviated hash | UI display, QR codes |
+| `computePasswordFingerprint()` | Short typo-check ID for a password | UI display only |
+| `normalizePassword()` | NFKC-normalize a password | Called internally; exposed for tests |
 
 ### Cryptographic Assurances
 
 - **Confidentiality**: AES-256-GCM ensures encrypted data cannot be read
 - **Integrity**: GCM authentication ensures data hasn't been modified
-- **Authenticity**: Additional data (header) is authenticated
+- **Authenticity**: Additional data (header: version, iterations, salt) is authenticated by GCM
 - **Uniqueness**: Random salt and IV ensure same plaintext gives different ciphertext
 
 ## Browser Compatibility

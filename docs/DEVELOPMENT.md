@@ -16,7 +16,7 @@ A comprehensive guide for setting up your development environment and understand
 
 ## Prerequisites
 
-- **Node.js**: v18.0.0 or higher
+- **Node.js**: v22.22.0+ or v24.15.0+ (required by Vite 8, Vitest 5 and jsdom 31)
 - **npm**: v9.0.0 or higher (or yarn/pnpm)
 - **Git**: For version control
 - **Code Editor**: VS Code recommended (ESLint extension helpful)
@@ -105,7 +105,7 @@ StarryCrypt/
 │
 ├── src/                          # Source code
 │   ├── components/              # React components
-│   │   ├── ui/                 # Shadcn UI components
+│   │   ├── ui/                 # sonner.tsx (toast wrapper)
 │   │   └── *.tsx               # Custom components
 │   │
 │   ├── pages/                   # Page components
@@ -130,10 +130,10 @@ StarryCrypt/
 │   └── *.test.ts               # Component tests
 │
 ├── .editorconfig                # Editor configuration
-├── .eslintrc.json              # Linting rules
+├── eslint.config.js            # Linting rules (ESLint flat config)
 ├── .gitignore                  # Git ignore rules
 ├── .env.example                # Environment template
-├── tailwind.config.ts          # Tailwind configuration
+├── postcss.config.js           # PostCSS (Tailwind 4 plugin)
 ├── tsconfig.json               # TypeScript configuration
 ├── vite.config.ts              # Vite configuration
 ├── vitest.config.ts            # Vitest configuration
@@ -151,12 +151,11 @@ StarryCrypt/
 The core cryptography module containing:
 - `encryptText()` - Main encryption function
 - `decryptText()` - Main decryption function
-- `computeHmacSha512()` - HMAC verification
-- `computeSha256Fingerprint()` - Hash generation
+- `normalizePassword()` - NFKC password normalization
+- `computePasswordFingerprint()` - Short StarID for password typo checks
 
 #### `src/components/`
 Reusable React components built with:
-- Radix UI primitives
 - Tailwind CSS styling
 - TypeScript for type safety
 
@@ -412,7 +411,7 @@ export function Page() {
 }
 ```
 
-### Adding Shadcn UI Component
+### Adding a shadcn/ui Component (optional)
 
 ```bash
 # Install a component

@@ -22,7 +22,7 @@ StarryCrypt is a zero-knowledge web application that performs all encryption and
 │  └──────────────────────────────────────────────┘   │
 │                         │                            │
 │  ┌──────────────────────────────────────────────┐   │
-│  │  State Management (React Query)              │   │
+│  │  State Management (React hooks)              │   │
 │  │  └─ Manage ciphertext, decrypted text        │   │
 │  └──────────────────────────────────────────────┘   │
 │                         │                            │
@@ -130,7 +130,7 @@ User Input (Base64 Ciphertext + Password)
 
 ### Cryptography Library (`src/lib/crypto.ts`)
 
-The heart of StarryCrypt. Contains four main functions:
+The heart of StarryCrypt. Contains the following functions:
 
 #### 1. `encryptText(text, password, iterations)`
 - **Purpose**: Encrypt plaintext with a password
@@ -149,22 +149,23 @@ The heart of StarryCrypt. Contains four main functions:
 - **Returns**: Decrypted plaintext
 - **Error Handling**: Generic "Decryption failed" message for all failures
 
-#### 3. `computeHmacSha512(data, key)`
-- **Purpose**: Generate HMAC-SHA512 for integrity verification
-- **Use Case**: Optional feature for additional data integrity checking
-- **Returns**: Hexadecimal hash string
+#### 3. `normalizePassword(password)`
+- **Purpose**: NFKC-normalize passwords so equivalent Unicode forms derive the same key
+- **Use**: Applied automatically inside `encryptText` / `decryptText`; `decryptText` also falls back to the raw password for data created before normalization existed
 
-#### 4. `computeSha256Fingerprint(data)`
-- **Purpose**: Generate a short SHA-256 fingerprint for display
-- **Use Case**: Show abbreviated hash for verification
-- **Returns**: First 12 characters of SHA-256 hash in uppercase
+#### 4. `computePasswordFingerprint(password)`
+- **Purpose**: Short "StarID" so users can confirm they typed the same password twice
+- **Derivation**: PBKDF2-SHA512 (210,000 iterations) with a fixed domain-separated salt, truncated to 16 bits
+- **Returns**: 4 uppercase hex characters
+
+There is no separate integrity layer: AES-GCM authenticates both the ciphertext and the header (version, iteration count, salt).
 
 ### React Components
 
 #### Index Page (`src/pages/Index.tsx`)
 - Main application interface
 - Form handling for encryption/decryption
-- URL parameter parsing for shared encrypted data
+- Share-link import from the URL fragment (legacy `?encrypted=` supported) and cleanup
 - Display of results and sharing options
 
 #### Support Components (`src/components/`)
@@ -175,10 +176,7 @@ The heart of StarryCrypt. Contains four main functions:
 
 ### State Management
 
-Uses **React Query** for:
-- Caching decrypted text during session
-- Managing form state across navigation
-- Handling async crypto operations
+Uses plain React state (`useState` / `useCallback`) in `Index.tsx`. Plaintext, passwords and output live only in memory; the only values written to `localStorage` are the theme and the language.
 
 ## Security Considerations
 

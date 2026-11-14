@@ -11,7 +11,6 @@ export interface Translations {
   successDecrypt: string;
   successCopy: string;
   errorEmpty: string;
-  errorHmac: string;
   errorGeneric: string;
   clipboardCleared: string;
   characters: string;
@@ -22,7 +21,6 @@ export interface Translations {
   resultPlaceholder: string;
   enterTextPlaceholder: string;
   securitySentinel: string;
-  hmacIntegrity: string;
   memoryWipe: string;
   securityDescription: string;
   heroTitle: string;
@@ -40,6 +38,14 @@ export interface Translations {
   shareEncrypted: string;
   shareOnlyEncrypted: string;
   importedEncryptedInput: string;
+  qrOnlyEncrypted: string;
+  qrFailed: string;
+  clipboardClearFailed: string;
+  starIdTooltip: string;
+  weakPasswordHint: string;
+  showPassword: string;
+  hidePassword: string;
+  slowDecryptConfirm: string;
 }
 
 export type Lang = 'en' | 'fr' | 'es' | 'ja' | 'ko' | 'bn';

@@ -505,23 +505,21 @@ window.addEventListener('unhandledrejection', (event) => {
 
 ### Security Headers
 
-Set these headers in deployment:
+The repository ships a `vercel.json` that sets these on every response, so Vercel deployments need no extra configuration:
 
 ```
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-X-Content-Type-Options: nosniff
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
 X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), microphone=(), camera=()
+X-Content-Type-Options: nosniff
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=63072000
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+Cross-Origin-Opener-Policy: same-origin
 ```
 
-**Vercel**: Automatic
-**Nginx**:
-```nginx
-add_header Strict-Transport-Security "max-age=31536000" always;
-add_header X-Content-Type-Options "nosniff" always;
-```
+`index.html` also carries a meta CSP as a fallback for hosts that cannot set headers, but a meta tag cannot express `frame-ancestors`, so prefer real headers. On other hosts, replicate the list above (for example with `add_header ... always;` in Nginx). Keep the CSP free of `'unsafe-eval'` and external origins: the app makes no network requests.
+
+`vercel.json` also rewrites non-asset paths to `index.html` for the single-page router and serves `sw.js` with `no-cache` so service worker updates are picked up.
 
 ## Troubleshooting Deployment
 

@@ -97,12 +97,11 @@ Output: 256-bit key
 **Against Brute-Force Attacks**:
 ```
 Key space: 2^256 (256-bit key)
-Work factor: 400,000 iterations per try
-Modern GPU: ~1 billion hashes/second
-Time for exhaustive search: 2^256 / (1B * 400k) ≈ 10^57 years
-
-Stronger configuration (1M iterations):
-Time for exhaustive search: 2^256 / (1B * 1M) ≈ 10^56 years
+Exhaustively searching the 256-bit key space is not the realistic attack.
+The realistic attack is guessing the password, where each guess costs one
+full PBKDF2-SHA512 run (400,000+ iterations). The attacker's cost is
+(number of plausible passwords) x (cost of one derivation), so password
+entropy is what matters; iterations only multiply the cost per guess.
 ```
 
 **Against Dictionary/Rainbow Tables**:
@@ -137,6 +136,7 @@ async function deriveKey(
   iterations: number
 ): Promise<CryptoKey> {
   // Import password as key material
+  // password has already been NFKC-normalized by the caller
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
@@ -206,7 +206,44 @@ This provides:
 - Unique IV ensures GCM security
 - Sufficient entropy for cryptographic operations
 
-### 4. Protocol Structure
+### 4. Password Normalization
+
+Passwords are normalized with `String.prototype.normalize("NFKC")` before key derivation, so `é` typed as one code point or as `e` plus a combining accent derives the same key, and compatibility forms such as full-width letters fold to their ASCII equivalents. Plaintext is never normalized.
+
+Data created before normalization was added used the raw password bytes. `decryptText()` tries the normalized password first and only falls back to the raw password (when it differs) if that fails. ASCII passwords never need the fallback. The format version is unchanged.
+
+### 5. Integrity and Authenticity
+
+Integrity comes from AES-GCM alone. The 128-bit tag covers the ciphertext, and the header (format version, iteration count, salt) is passed as additional authenticated data, so changing any byte of it makes decryption fail.
+
+Earlier versions optionally appended `|<HMAC-SHA512>`, keyed with the same password. That layer was removed because it added no security (GCM already authenticates everything) and it weakened the system: it gave an attacker a way to test password guesses with a single HMAC instead of a full PBKDF2 derivation, and it was compared without a constant-time check. For compatibility, `decryptText()` ignores a trailing `|...` suffix on input; the payload is still fully authenticated by GCM.
+
+### 6. StarID (Password Fingerprint)
+
+The StarID is shown beside the password label (not in the output area). It is cleared immediately whenever the password changes and recomputed 500 ms after typing stops, so a stale value never looks like a match. It is a typo check only.
+
+- Derived with PBKDF2-SHA512 (210,000 iterations) from the normalized password and a fixed salt, `StarryCrypt/password-fingerprint/v1`, which is unrelated to the per-message encryption salt
+- Truncated to 16 bits (4 hex characters)
+- The UI computes it 500 ms after typing stops
+
+It replaces an earlier display of 48 bits of an unsalted SHA-256 of the password, which allowed fast offline guess testing from a screenshot. With 16 bits and a slow KDF, a leaked StarID narrows the password very little and every guess still costs a full derivation. A weak password can still be confirmed against it, so avoid sharing screenshots that show it.
+
+### 7. Sharing, QR Codes and Clipboard
+
+- **Share links** put the ciphertext in the URL fragment (`#encrypted=...`). Fragments are not sent to servers, so the ciphertext stays out of access logs, analytics and `Referer` headers, and long messages are not rejected by server URL limits. The link is removed from the address bar after import. Old `?encrypted=` links are still read.
+- **QR codes** are limited by bytes (2,331 at error-correction level M), not characters, because non-Latin text uses several bytes per character. They are only offered for encrypted output, never decrypted plaintext, close when the output changes, and are wrapped in an error boundary so an unexpected failure cannot blank the app.
+- **Clipboard auto-clear** (30 s, on by default) clears the clipboard after copying the output. Only one clear is pending at a time. If read access is already granted, a newer clipboard value is left alone. Failures (for example the tab lost focus) are reported instead of claiming success. This clears the clipboard only; JavaScript cannot wipe strings from memory.
+- **Slow-decrypt confirmation**: decrypting a message that needs more than 2,000,000 iterations asks first, since a crafted link could otherwise keep the user waiting for tens of seconds.
+
+### 8. Deployment Hardening
+
+`vercel.json` sets a Content-Security-Policy (with `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`), HSTS, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY` and a restrictive Permissions-Policy. See `docs/DEPLOYMENT.md`.
+
+### 9. Password Guidance
+
+The UI shows a hint for passwords under 12 characters and rejects blank (whitespace-only) passwords for encryption. Security depends on password entropy, so prefer a passphrase of 4 or more random words.
+
+### 10. Protocol Structure
 
 #### Format Version 1 Specification
 
@@ -271,17 +308,21 @@ Example: 100 bytes → ~133 characters
 **Mitigations**:
 - High iteration count (400k default, configurable)
 - Salt prevents batched attacks
-- Each encryption takes ~1 second
+- Each guess costs one full PBKDF2 derivation
 
 **Resistance**:
 ```
-Weak password (8 chars):
+Random 8-character password over 95 symbols:
 - 95^8 ≈ 6.6 × 10^15 possibilities
-- At 1/second: ~209,000 years (acceptable)
+- Attackers with GPU farms can try many guesses per second even at 400k
+  iterations, so this is NOT safe against a determined offline attacker
 
-Strong password (12 chars):
-- 95^12 ≈ 4.8 × 10^23 possibilities
-- At 1/second: Beyond heat death of universe
+Random 12-character password over 95 symbols:
+- 95^12 ≈ 5.4 × 10^23 possibilities
+- Infeasible to enumerate, even at very high guess rates
+
+Human-chosen passwords have far less entropy than random ones. Prefer long
+random passphrases (for example 5+ random words).
 ```
 
 **Recommendation**: Use 12+ character passwords with mixed case, numbers, symbols
@@ -341,9 +382,10 @@ This prevents attackers from learning:
 **Timing attacks**: Measure decryption time to gain info
 
 **Mitigation**:
-- Web Crypto API implementation timing-resistant
-- All error messages generic (no early exit)
-- Iteration count in ciphertext (known to attacker)
+- Tag verification is performed by the Web Crypto AES-GCM implementation, not by application code
+- All error messages are identical ("Decryption failed")
+- Format version and iteration range are checked before key derivation, so malformed input fails fast. This is intentionally observable: the header is public
+- The application performs no secret-dependent comparisons of its own
 
 **Key extraction**:
 - Keys never exportable
@@ -391,7 +433,7 @@ console.log(crypto.getRandomValues); // Should exist
 | Security Property | Implementation | Strength |
 |-------------------|-----------------|----------|
 | Encryption | AES-256-GCM | 256 bits |
-| Authentication | GCM-SIV | 128 bits |
+| Authentication | AES-GCM tag (header as AAD) | 128 bits |
 | Key Derivation | PBKDF2-SHA512 | 256 bits |
 | Salt | Random 256-bit | 256 bits |
 | IV/Nonce | Random 96-bit | 96 bits |
@@ -409,6 +451,8 @@ For practical purposes: Equivalent to 2^96 work factor per unique IV
 ✓ Generate unique salt per encryption
 ✓ Generate unique IV per encryption
 ✓ Include metadata in authentication
+✓ Normalize passwords to NFKC
+✓ Tested against an independent node:crypto implementation (see docs/TESTING.md)
 ✓ Use generic error messages
 ✓ Key derivation with appropriate iterations
 ✓ No key material in logs/storage
@@ -418,7 +462,7 @@ For practical purposes: Equivalent to 2^96 work factor per unique IV
 ✗ ECB mode (deterministic encryption)
 ✗ Weak randomness (Math.random())
 ✗ Reused IV with same key
-✗ No authentication (CBC without HMAC)
+✗ No authentication (unauthenticated CBC)
 ✗ Detailed error messages (info leakage)
 ✗ Low iteration counts (< 100k)
 ✗ Hard-coded keys or salts

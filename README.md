@@ -31,18 +31,18 @@ Perfect for securely sharing sensitive messages, storing encrypted notes, or lea
 - **Zero-Knowledge Architecture**: All cryptographic operations are executed locally in your browser. No server communication is involved in the encryption/decryption process.
 - **Seamless Sharing**: Share encrypted messages via QR codes, direct URL sharing, or file downloads.
 - **Internationalization (i18n)**: Built-in multi-language UI support for global accessibility.
-- **Modern UI/UX**: A beautiful, responsive interface built with React, Tailwind CSS, and shadcn/ui.
-- **Auto-cleanup**: Intelligent URL input handling with automatic query parameter sanitization to prevent accidental data leaks.
+- **Modern UI/UX**: A beautiful, responsive interface built with React and Tailwind CSS.
+- **Private share links**: Shared ciphertext lives in the URL fragment (`#encrypted=...`), which browsers never send to a server, and it is removed from the address bar after import. Old `?encrypted=` links still work.
+- **Hardened deployment**: `vercel.json` sets a strict Content-Security-Policy (including `frame-ancestors 'none'`), HSTS, `nosniff`, `no-referrer` and a restrictive Permissions-Policy.
 
 ## Tech Stack
 
-- **Frontend Framework**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS & shadcn/ui
+- **Frontend Framework**: React 19 with TypeScript
+- **Build Tool**: Vite 8
+- **Styling**: Tailwind CSS 4
 - **Cryptography**: Native Web Crypto API
-- **Routing**: React Router DOM
-- **Form Handling**: React Hook Form + Zod
-- **Icons & Components**: Lucide React, Radix UI, Recharts
+- **Routing**: React Router 7
+- **Icons & Toasts**: Lucide React, Sonner
 
 ## Security Model
 
@@ -51,13 +51,14 @@ StarryCrypt implements a strict security model to ensure your data remains confi
 - **Encryption Algorithm**: AES-GCM-256 (Advanced Encryption Standard in Galois/Counter Mode)
 - **Key Derivation**: PBKDF2 with SHA-512 (Password-Based Key Derivation Function 2)
 - **Salting & IVs**: A cryptographically secure random salt and Initialization Vector (IV) are generated for every single encryption operation.
-- **Integrity Checking**: Optional HMAC tags are used to verify the authenticity and integrity of the ciphertext before decryption.
+- **Integrity Checking**: AES-GCM authenticates the ciphertext and the header (version, iteration count, salt); any modification causes decryption to fail.
+- **Unicode-safe passwords**: Passwords are normalized to NFKC so the same password works across devices and input methods.
 
 ## Getting Started
 
 ### Prerequisites
 
-Ensure you have Node.js (v18+) and npm installed on your local machine.
+Ensure you have Node.js (v22.22+ or v24.15+) and npm installed on your local machine.
 
 ### Installation
 
